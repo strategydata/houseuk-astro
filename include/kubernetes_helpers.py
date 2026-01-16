@@ -1,0 +1,62 @@
+from os import environ as env
+
+
+def get_affinity_with_key_value(key, values):
+    return {
+        "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+                "nodeSelectorTerms": [
+                    {
+                        "matchExpressions": [
+                            {"key": key, "operator": "In", "values": values}
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+
+
+def get_toleration_with_value(value):
+    return [
+        {"key": value, "operator": "Equal", "value": "true", "effect": "NoSchedule"}
+    ]
+
+
+test_affinity = get_affinity_with_key_value("test", ["true"])
+test_tolerations = get_toleration_with_value("test")
+
+production_affinity = get_affinity_with_key_value("production", ["true"])
+production_tolerations = get_toleration_with_value("production")
+
+extraction_affinity = get_affinity_with_key_value("extraction", ["true"])
+extraction_tolerations = get_toleration_with_value("extraction")
+
+
+
+dbt_affinity = get_affinity_with_key_value("dbt", ["true"])
+dbt_tolerations = get_toleration_with_value("dbt")
+
+
+def is_local_test():
+    return "NAMESPACE" in env and env["NAMESPACE"] == "testing"
+
+
+def get_affinity(affinity):
+    if is_local_test():
+        return test_affinity
+    if affinity == "extraction":
+        return extraction_affinity
+    if affinity == "dbt":
+        return dbt_affinity
+    return production_affinity
+
+
+def get_toleration(tolerations):
+    if is_local_test():
+        return test_tolerations
+    if tolerations == "extraction":
+        return extraction_tolerations
+    if tolerations == "dbt":
+        return dbt_tolerations
+    return production_tolerations

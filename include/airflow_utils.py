@@ -6,8 +6,8 @@ import urllib
 from datetime import timedelta
 import logging
 from airflow.providers.slack.notifications.slack import send_slack_notification
-
-
+from kubernetes.client import models as k8s
+import os
 DATA_IMAGE="ghcr.io/strategydata/data-infrastructure:latest"
 IMAGE_URL = "https://raw.githubusercontent.com/apache/airflow/main/airflow-core/src/airflow/ui/public/pin_100.png"
 
@@ -21,8 +21,6 @@ def stream_url_to_s3(url: str, bucket: str, s3_key: str, chunk_size: int = 8192)
                 if chunk:
                     f.write(chunk)
     print(f"Uploaded data from {url} to s3://{bucket}/{s3_key}")
-    
-
 
 def slack_failed_task(context):
     """slack_failed_task Function to be used as a callable for no_failure_callback
@@ -90,10 +88,26 @@ def slack_failed_task(context):
         icon_url=IMAGE_URL,
     )(context)
 
-amber_defaults={
+amber_dags_defaults={
     "on_failure_callback": slack_failed_task,
     "owner":"airflow",
     "retries":1,
     "retry_delay":timedelta(minutes=5),
     "depends_on_past":False,
     }
+
+container_resources = k8s.V1ResourceRequirements(
+	requests={"memory":"2Gi","cpu":"800m"},
+	limits={"memory":"4Gi","cpu":"800m"},
+)
+
+amber_kube_defaults={
+	"get_logs":True,
+	"image_pull_policy":"Always",
+ 	"is_delete_operator_pod":True,
+	"cmd":["/bin/bash","-c"],
+ 	"container_resources":container_resources,
+ 	"execution_timeout":timedelta(hours=23),
+	"cmds":["/bin/bash","-c"],
+    "namespace": os.environ.get("NAMESPACE"),
+	}

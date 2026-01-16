@@ -5,7 +5,7 @@ from airflow.models import Variable
 import os
 from airflow.providers.slack.operators.slack_webhook import SlackWebhookHook
 import urllib.parse
-from include.airflow_utils import amber_defaults
+from include.airflow_utils import amber_dags_defaults
 
 SLACK_WEBHOOK_CONN_ID = os.environ.get("SLACK_WEBHOOK_CONN_ID", "airflow_con_slack_data_science_webhook")
 
@@ -19,15 +19,13 @@ SLACK_WEBHOOK_CONN_ID = os.environ.get("SLACK_WEBHOOK_CONN_ID", "airflow_con_sla
 #     """
 #     attachment, slack_channel, task_id, task_text = slack_defaults(context, "success")
 #     airflow_http_con_id, slack_webhook = slack_webhook_conn(slack_channel)
-
-    
-    
 @dag(
     dag_id="slack",
     start_date=datetime(2025, 1, 5),
     schedule=None,
     catchup=False,
-    default_args=amber_defaults,
+    default_args=amber_dags_defaults,
+    
 )
 def slack_notifier_dag():
 
