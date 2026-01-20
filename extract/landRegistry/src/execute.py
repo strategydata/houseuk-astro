@@ -32,7 +32,7 @@ if __name__ == "__main__":
     aws_account_id = os.getenv("AWS_ACCOUNT_ID")
     aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
     aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
-    logging.info(f"Uploading data from {aws_account_id} to Secret {aws_access_key_id} Access Key Id {aws_secret_access_key}")
+    print(f"Uploading data from {aws_account_id} to Secret {aws_access_key_id} Access Key Id {aws_secret_access_key}")
     logging.info("Starting Land Registry data ingestion")
 
     # url ="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-monthly-update-new-version.csv"
