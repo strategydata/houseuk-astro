@@ -29,9 +29,8 @@ def stream_to_s3(url: str ="http://prod.publicdata.landregistry.gov.uk.s3-websit
 
 if __name__ == "__main__":
     print("Executing Land Registry data ingestion script")
-    config_dict = os.environ.copy()
-    logging.info("Starting Land Registry data ingestion")
     logging.info(f"Uploading data from {os.getenv("AWS_ACCOUNT_ID")} to Secret {os.getenv("AWS_SECRET_ACCESS_KEY")} Access Key Id {os.getenv("AWS_ACCESS_KEY_ID")}")
+    logging.info("Starting Land Registry data ingestion")
 
     # url ="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-monthly-update-new-version.csv"
     url ="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-complete.csv"
