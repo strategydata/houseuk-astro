@@ -17,7 +17,6 @@ def stream_to_s3(url: str ="http://prod.publicdata.landregistry.gov.uk.s3-websit
 
     """
     logging.info("Creating S3 client")
-    logging.info(f"Uploading data from {os.getenv("AWS_ACCOUNT_ID")} to Secret {os.getenv("AWS_SECRET_ACCESS_KEY")} Access Key Id {os.getenv("AWS_ACCESS_KEY_ID")}")
     s3 = boto3.client('s3',
                     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
                     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
@@ -32,7 +31,8 @@ if __name__ == "__main__":
     print("Executing Land Registry data ingestion script")
     config_dict = os.environ.copy()
     logging.info("Starting Land Registry data ingestion")
-    logging.info(f"Configuration: {config_dict}")
+    logging.info(f"Uploading data from {os.getenv("AWS_ACCOUNT_ID")} to Secret {os.getenv("AWS_SECRET_ACCESS_KEY")} Access Key Id {os.getenv("AWS_ACCESS_KEY_ID")}")
+
     # url ="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-monthly-update-new-version.csv"
     url ="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-complete.csv"
     bucket = "quibbler-house-data-lake"
