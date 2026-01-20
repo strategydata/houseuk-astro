@@ -1,6 +1,7 @@
 from airflow.sdk import dag,task
 from include.airflow_utils import stream_url_to_s3, DATA_IMAGE,amber_kube_defaults,amber_dags_defaults,clone_and_setup_repo_cmd
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+from dags.kube_secrets import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 import os
 from datetime import datetime, timedelta
 from include.kubernetes_helpers import get_affinity, get_toleration
@@ -33,6 +34,10 @@ def landRegistry_extract():
         kubernetes_conn_id="k8s_conn",
         task_id="landRegistry_extract_task",
         name="landRegistry-extract-pod",
+        secrets=[
+            AWS_ACCESS_KEY_ID,
+            AWS_SECRET_ACCESS_KEY,
+            ],
         # affinity=get_affinity("extraction"),
         # tolerations=get_toleration("extraction"),
         arguments=[landRegistry_extract_cmd],
