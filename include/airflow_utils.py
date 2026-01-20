@@ -105,9 +105,9 @@ container_resources = k8s.V1ResourceRequirements(
 
 amber_kube_defaults={
 	"get_logs":True,
- 	"is_delete_operator_pod":True,
+ 	"is_delete_operator_pod":False,
  	"container_resources":container_resources,
- 	"startup_timeout_seconds":1200,
+ 	"startup_timeout_seconds":200,
 	"cmds":["/bin/bash","-c"],
 	}
 
