@@ -10,7 +10,9 @@ from kubernetes.client import models as k8s
 import os
 DATA_IMAGE="ghcr.io/strategydata/data-infrastructure:latest"
 IMAGE_URL = "https://raw.githubusercontent.com/apache/airflow/main/airflow-core/src/airflow/ui/public/pin_100.png"
-
+SSH_REPO="git@github.com:strategydata/houseuk-astro.git"
+HTTP_REPO="https://github.com/strategydata/houseuk-astro.git"
+GIT_BRANCH= "main"
 @task
 def stream_url_to_s3(url: str, bucket: str, s3_key: str, chunk_size: int = 8192):    
     s3 = boto3.client('s3')
@@ -103,11 +105,36 @@ container_resources = k8s.V1ResourceRequirements(
 
 amber_kube_defaults={
 	"get_logs":True,
-	"image_pull_policy":"Always",
  	"is_delete_operator_pod":True,
-	"cmd":["/bin/bash","-c"],
  	"container_resources":container_resources,
  	"execution_timeout":timedelta(hours=23),
 	"cmds":["/bin/bash","-c"],
-    "namespace": os.environ.get("NAMESPACE"),
 	}
+
+
+data_test_ssh_key_cmd= f"""
+	mkdir ~/.ssh/ &&
+	touch ~/.ssh/id_rsa && touch ~/.ssh/config &&
+	echo "$GIT_DATA_TESTS_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 0400 ~/.ssh/id_rsa &&
+	echo "$GIT_DATA_TESTS_CONFIG" > ~/.ssh/config"""
+
+clone_repo_cmd =f"""
+	{data_test_ssh_key_cmd} &&
+	if [[ -z "$GIT_COMMIT" ]]; then
+        export GIT_COMMIT="HEAD"
+    fi
+	if [[ -z "$GIT_DATA_TESTS_PRIVATE_KEY" ]]; then
+        export REPO="{HTTP_REPO}";
+        else
+        export REPO="{SSH_REPO}";
+    fi &&
+    git clone -b {GIT_BRANCH} --single-branch --depth 1 $REPO &&
+    echo "checking out commit $GIT_COMMIT" &&
+	cd houseuk-astro &&
+ 	git checkout $GIT_COMMIT &&
+    cd .."""
+
+    
+clone_and_setup_repo_cmd= f"""
+	{clone_repo_cmd} &&
+	cd houseuk-astro"""

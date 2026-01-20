@@ -5,7 +5,9 @@ import logging
 from fire import Fire
 
 
-def stream_to_s3(url: str, bucket: str, key: str) -> None:
+def stream_to_s3(url: str ="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-monthly-update-new-version.csv", 
+                 bucket: str ="quibbler-house-data-lake", 
+                 key: str ="raw/land_registry/pp-monthly-update-new-version.csv") -> None:
     """stream_to_s3 Upload a file from a URL to an S3 bucket.
 
     Args:

@@ -1,5 +1,5 @@
 from airflow.sdk import dag,task
-from include.airflow_utils import stream_url_to_s3, DATA_IMAGE,amber_kube_defaults,amber_dags_defaults
+from include.airflow_utils import stream_url_to_s3, DATA_IMAGE,amber_kube_defaults,amber_dags_defaults,clone_and_setup_repo_cmd
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 import os
 from datetime import datetime, timedelta
@@ -23,41 +23,20 @@ default_args ={
 )
 def landRegistry_extract():
     landRegistry_extract_cmd = f"""
+    {clone_and_setup_repo_cmd} &&
+    python extract/landRegistry/src/execute.py"""
     
-    """
-    # namespace = conf.get("kubernetes", "NAMESPACE")
     landRegistry_kube = KubernetesPodOperator(
-        # **amber_kube_defaults,
+        **amber_kube_defaults,
         image=DATA_IMAGE,
+        image_pull_secrets=[k8s.V1LocalObjectReference(name="amber-ghcr-registry")],
         kubernetes_conn_id="k8s_conn",
         task_id="landRegistry_extract_task",
         name="landRegistry-extract-pod",
         # affinity=get_affinity("extraction"),
         # tolerations=get_toleration("extraction"),
-        arguments=["echo Hello World"],
-        is_delete_operator_pod=True,
-        get_logs=True
+        arguments=[landRegistry_extract_cmd],
     )
-    # landRegistry_kube=KubernetesPodOperator(
-    #     kubernetes_conn_id="k8s_conn",
-    #     image="hello-world",
-    #     cmds=["bash", "-cx"],
-    #     arguments=["echo", "10", "echo pwd"],
-    #     labels={"foo": "bar"},
-    #     name="airflow-private-image-pod",
-    #     is_delete_operator_pod=True,
-    #     task_id="task-two",
-    #     get_logs=True,
-    # )
-    # logging.info(f"Using namespace: {namespace}")
-    # landRegistry_kube = KubernetesPodOperator(
-    #     kubernetes_conn_id="k8s_conn",
-    #     image="hello-world",
-    #     name="airflow-test-pod",
-    #     task_id="task-one",
-    #     is_delete_operator_pod=True,
-    #     get_logs=True,
-    # )
 
     landRegistry_kube
     

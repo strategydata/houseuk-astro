@@ -1,9 +1,9 @@
-Overview
+# Overview
 ========
 
 Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
 
-Project Contents
+# Project Contents
 ================
 
 Your Astro project contains the following files and folders:
@@ -17,8 +17,17 @@ Your Astro project contains the following files and folders:
 - plugins: Add custom or community plugins for your project to this file. It is empty by default.
 - airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
 
-Deploy Your Project Locally
+# Deploy Your Project Locally
 ===========================
+
+## Kubectl
+
+run kubectl command to create secrets, we create docker-registry secrets to allow KubernetesPodOperator access private image from ghcr.io
+```bash
+kubectl create secret docker-registry amber-ghcr-registry --docker-email=${GITHUB_EMAIL}$ --docker-username=${GITHUB_USERNAME}$ --docker-password=${GITHUB_API_TOKEN}$ --docker-server=https://ghcr.io
+```
+
+
 
 Start Airflow on your local machine by running 'astro dev start'.
 
@@ -43,3 +52,4 @@ Contact
 =======
 
 The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+
