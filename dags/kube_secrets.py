@@ -5,7 +5,7 @@ AWS_ACCESS_KEY_ID=Secret(
     deploy_type="env",
     deploy_target="AWS_ACCESS_KEY_ID",
     secret="airflow-credentials",
-    key="aws_access_key_id",
+    key="AWS_ACCESS_KEY_ID",
 )
 
 AWS_SECRET_ACCESS_KEY =Secret(
