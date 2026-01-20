@@ -107,7 +107,7 @@ amber_kube_defaults={
 	"get_logs":True,
  	"is_delete_operator_pod":True,
  	"container_resources":container_resources,
- 	"execution_timeout":timedelta(hours=23),
+ 	"startup_timeout_seconds":1200,
 	"cmds":["/bin/bash","-c"],
 	}
 
