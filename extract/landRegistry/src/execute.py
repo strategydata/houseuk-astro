@@ -27,11 +27,6 @@ def stream_to_s3(url: str ="http://prod.publicdata.landregistry.gov.uk.s3-websit
         s3.upload_fileobj(response.raw, bucket, key)
 
 if __name__ == "__main__":
-    aws_account_id = os.getenv("AWS_ACCOUNT_ID")
-    aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
-    aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
-    logging.info("Starting Land Registry data ingestion")
-
     # url ="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-monthly-update-new-version.csv"
     url ="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-complete.csv"
     bucket = "quibbler-house-data-lake"
