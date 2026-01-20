@@ -27,6 +27,11 @@ run kubectl command to create secrets, we create docker-registry secrets to allo
 kubectl create secret docker-registry amber-ghcr-registry --docker-email=${GITHUB_EMAIL}$ --docker-username=${GITHUB_USERNAME}$ --docker-password=${GITHUB_API_TOKEN}$ --docker-server=https://ghcr.io
 ```
 
+kubectl command to create secrets for genetic
+```
+kubectl create secret generic airflow-credentials --from-env-file=.env/dev.env
+
+```
 
 
 Start Airflow on your local machine by running 'astro dev start'.
