@@ -3,11 +3,9 @@ from include.airflow_utils import stream_url_to_s3, DATA_IMAGE,amber_kube_defaul
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 from dags.kube_secrets import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from include.kubernetes_helpers import get_affinity, get_toleration
-from airflow.configuration import conf
 from kubernetes.client import models as k8s
-from airflow.configuration import conf
 import logging
 config_dict = os.environ.copy()
 
@@ -38,11 +36,9 @@ def landRegistry_extract():
             AWS_ACCESS_KEY_ID,
             AWS_SECRET_ACCESS_KEY,
             ],
-        # affinity=get_affinity("extraction"),
-        # tolerations=get_toleration("extraction"),
         arguments=[landRegistry_extract_cmd],
+        do_xcom_push=True,
     )
-
     landRegistry_kube
     
 landRegistry_extract()

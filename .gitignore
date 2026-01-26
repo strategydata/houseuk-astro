@@ -10,3 +10,7 @@ webserver_config.py
 airflow.cfg
 airflow.db
 .kube
+*.json
+*-lock
+extract/crime/target
+Cargo.lock

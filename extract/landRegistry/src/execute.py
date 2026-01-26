@@ -1,7 +1,6 @@
 import os
 import requests
 import boto3
-import logging
 from fire import Fire
 
 
