@@ -14,3 +14,5 @@ airflow.db
 *-lock
 extract/crime/target
 Cargo.lock
+extract/crime/next/src/main.exe
+extract/crime/next/target/debug/
