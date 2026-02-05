@@ -94,7 +94,7 @@ amber_dags_defaults={
     "on_failure_callback": slack_failed_task,
     "owner":"airflow",
     "retries":1,
-    "retry_delay":timedelta(minutes=5),
+    "retry_delay":timedelta(minutes=1),
     "depends_on_past":False,
     }
 

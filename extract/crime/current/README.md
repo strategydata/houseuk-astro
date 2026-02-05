@@ -1,0 +1,27 @@
+## 🚔 Extracting UK Crime Data
+This process involves downloading historical crime data snapshots from the official UK Police data portal and archiving them into our internal S3 data lake for further processing.
+
+## :hammer_and_wrench: Configuration Parameters
+
+When running the extraction script, use the following parameters to define the source and destination:
+| parameter | Value | Description |
+| :--- | :--- | :--- |
+| url | ```https://data.police.uk/data/archive/2025-12.zip``` | The direct download link for the monthly data package.
+| bucket | ```quibbler-house-data-lake``` | The target S3 bucket where the raw data is stored.
+| key | ```raw/crime/2025-12.zip``` | The specific folder path and filename within the bucket
+
+
+## :bulb: Data Archive Coverage
+The UK Police Department maintains a robust archive of historical data. You can programmatically access these files by modifying the date in the URL.
+- **Available Range**: December 2013 to December 2025.
+- **format**: zip
+- **Naming Convention**: ```YYYY-MM.zip```
+
+## :rocket: Usage
+
+Execute the script via the command line using the following examples:
+
+**2025-12**
+```bash
+python extract/crime/current/execute.py --url="https://data.police.uk/data/archive/2025-12.zip" --bucket="quibbler-house-data-lake" --key="raw/crime/2025-12.zip"
+```

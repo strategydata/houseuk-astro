@@ -58,3 +58,13 @@ Contact
 
 The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
 
+# Inspiration
+this project is inspire by [GitLab-Data](https://gitlab.com/gitlab-data)
+
+# Resources
+
+[Data Engineer parts](https://gitlab.com/gitlab-data)
+[Airflow Kubernetes](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/operators.html)
+[Astro Documentation](https://www.astronomer.io/docs/astro/overview)
+[Kubernetes](https://kubernetes.io/docs/home/)
+[Airflow](https://airflow.apache.org/docs/apache-airflow/stable/index.html)
