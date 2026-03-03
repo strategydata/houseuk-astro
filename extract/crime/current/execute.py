@@ -1,4 +1,4 @@
-﻿"""UK Crime extractor CLI entrypoint.
+"""UK Crime extractor CLI entrypoint.
 
 This module exposes the shared streaming helper as a Fire CLI command.
 """

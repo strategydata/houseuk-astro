@@ -1,4 +1,4 @@
-﻿"""InsideAirbnb extractor entrypoint.
+"""InsideAirbnb extractor entrypoint.
 
 This module resolves the latest InsideAirbnb listings dataset for a market,
 uploads the dated snapshot to S3, and refreshes a stable `latest` object key.

@@ -368,4 +368,3 @@ mod tests {
        assert_eq!(decode_s3_key("a%2Fb+c.zip"), "a/b c.zip");
     }
 }
-

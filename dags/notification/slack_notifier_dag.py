@@ -27,7 +27,7 @@ SLACK_WEBHOOK_CONN_ID = os.environ.get("SLACK_WEBHOOK_CONN_ID", "airflow_con_sla
     schedule=None,
     catchup=False,
     default_args=amber_dags_defaults,
-    
+
 )
 def slack_notifier_dag():
 

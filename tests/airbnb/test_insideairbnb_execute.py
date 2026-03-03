@@ -79,12 +79,14 @@ def test_uploads_dated_file_and_refreshes_latest_pointer(execute_module):
     resolved_date = "2025-09-14"
     s3 = MagicMock()
 
-    with patch.object(
-        execute_module,
-        "resolve_latest_listings_url",
-        return_value=(resolved_url, resolved_date),
-    ) as resolve_mock, patch.object(execute_module, "stream_to_s3") as stream_mock, patch.object(
-        execute_module, "_s3_client", return_value=s3
+    with (
+        patch.object(
+            execute_module,
+            "resolve_latest_listings_url",
+            return_value=(resolved_url, resolved_date),
+        ) as resolve_mock,
+        patch.object(execute_module, "stream_to_s3") as stream_mock,
+        patch.object(execute_module, "_s3_client", return_value=s3),
     ):
         execute_module.extract_latest_market_snapshot(
             city="london",

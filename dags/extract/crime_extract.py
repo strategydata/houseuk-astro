@@ -17,7 +17,7 @@ def crime_extract():
     crime_extract_cmd = f"""
     {clone_and_setup_repo_cmd} &&
     python extract/crime/src/execute.py"""
-    
+
     crime_kube = KubernetesPodOperator(
         **amber_kube_defaults,
         image=DATA_IMAGE,

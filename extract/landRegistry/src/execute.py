@@ -1,4 +1,4 @@
-﻿"""Land Registry extractor CLI entrypoint.
+"""Land Registry extractor CLI entrypoint.
 
 This module exposes the shared streaming helper as a Fire CLI command.
 """

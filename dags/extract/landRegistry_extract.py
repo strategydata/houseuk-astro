@@ -26,7 +26,7 @@ def landRegistry_extract():
     landRegistry_extract_cmd = f"""
     {clone_and_setup_repo_cmd} &&
     python extract/landRegistry/src/execute.py"""
-    
+
     landRegistry_kube = KubernetesPodOperator(
         **amber_kube_defaults,
         image=DATA_IMAGE,
@@ -42,5 +42,5 @@ def landRegistry_extract():
         do_xcom_push=True,
     )
     landRegistry_kube
-    
+
 landRegistry_extract()

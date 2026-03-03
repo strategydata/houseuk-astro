@@ -27,9 +27,8 @@ plugins:
         python:
           options:
             docstring_style: numpy
-  
+
 markdown_extensions:
   - admonition
   - toc:
       permalink: true
-

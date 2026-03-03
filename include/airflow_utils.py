@@ -19,7 +19,7 @@ SSH_REPO="git@github.com:strategydata/houseuk-astro.git"
 HTTP_REPO="https://github.com/strategydata/houseuk-astro.git"
 GIT_BRANCH= "main"
 @task
-def stream_url_to_s3(url: str, bucket: str, s3_key: str, chunk_size: int = 8192):    
+def stream_url_to_s3(url: str, bucket: str, s3_key: str, chunk_size: int = 8192):
     s3 = boto3.client('s3')
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
@@ -139,7 +139,7 @@ clone_repo_cmd =f"""
  	git checkout $GIT_COMMIT &&
     cd .."""
 
-    
+
 clone_and_setup_repo_cmd= f"""
 	{clone_repo_cmd} &&
 	cd houseuk-astro"""

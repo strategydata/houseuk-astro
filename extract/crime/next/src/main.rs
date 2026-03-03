@@ -42,7 +42,7 @@ async fn main() -> Result<()> {
     // println!("Downloading ZIP...");
     // let mut response = reqwest::get(url).await?;
     // let mut file = File::create(zip_path).await?;
-    
+
     // while let Some(chunk) = response.chunk().await? {
     //     file.write_all(&chunk).await?;
     // }
@@ -61,7 +61,7 @@ async fn main() -> Result<()> {
     // println!("Extracting and uploading files...");
     // let file = File::open(zip_path).await?;
     // let mut reader = ZipFileReader::with_tokio(file).await?;
-    
+
     // let num_entries = reader.file().entries().len();
     // for i in 0..num_entries {
     //     let entry = &reader.file().entries()[i];
@@ -83,7 +83,7 @@ async fn main() -> Result<()> {
     //         .body(ByteStream::from(buffer))
     //         .send()
     //         .await?;
-        
+
     //     println!("Uploaded: {}", filename);
     // }
 
@@ -93,4 +93,3 @@ async fn main() -> Result<()> {
 
     Ok(())
 }
-
