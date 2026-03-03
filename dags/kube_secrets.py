@@ -16,5 +16,3 @@ AWS_SECRET_ACCESS_KEY =Secret(
     secret="airflow-credentials",
     key="AWS_SECRET_ACCESS_KEY",
     )
-
-

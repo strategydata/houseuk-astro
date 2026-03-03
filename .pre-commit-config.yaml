@@ -1,13 +1,18 @@
 repos:
-  - repo: local
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.4
     hooks:
       - id: ruff-check
-        name: ruff-check
-        entry: uv run ruff check extract lambda/stream_unzip_s3.py tests/airbnb tests/include
-        language: system
-        types: [python]
+        args: [extract, lambda/stream_unzip_s3.py, tests/airbnb, tests/include]
+        pass_filenames: false
       - id: ruff-format
-        name: ruff-format
-        entry: uv run ruff format extract lambda/stream_unzip_s3.py tests/airbnb tests/include
-        language: system
-        types: [python]
+        args: [extract, lambda/stream_unzip_s3.py, tests/airbnb, tests/include]
+        pass_filenames: false

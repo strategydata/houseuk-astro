@@ -87,7 +87,8 @@ Extractor documentation lives under `extract/`:
 - Install all local quality tooling:
   - `uv sync --group dev --group docs`
 - Run production baseline checks locally:
-  - `uv run ruff check extract lambda/stream_unzip_s3.py tests/airbnb tests/include`
+  - `uv run pre-commit run ruff-check --all-files`
+  - `uv run pre-commit run ruff-format --all-files`
   - `uv run mypy`
   - `uv run pytest tests/airbnb tests/include`
   - `uv run mkdocs build`

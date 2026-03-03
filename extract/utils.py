@@ -1,4 +1,4 @@
-﻿"""Shared extraction utilities.
+"""Shared extraction utilities.
 
 This module contains helpers reused by multiple extract scripts.
 """

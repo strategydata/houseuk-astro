@@ -65,4 +65,3 @@ def get_toleration(tolerations):
     if tolerations == "dbt":
         return dbt_tolerations
     return production_tolerations
-

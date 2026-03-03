@@ -13,21 +13,20 @@ import logging
 from airflow.providers.slack.notifications.slack import send_slack_notification
 from kubernetes.client import models as k8s
 import os
+logger = logging.getLogger(__name__)
 DATA_IMAGE = "ghcr.io/strategydata/data-infrastructure:2026.03.0"
 IMAGE_URL = "https://raw.githubusercontent.com/apache/airflow/main/airflow-core/src/airflow/ui/public/pin_100.png"
 SSH_REPO="git@github.com:strategydata/houseuk-astro.git"
 HTTP_REPO="https://github.com/strategydata/houseuk-astro.git"
 GIT_BRANCH= "main"
 @task
-def stream_url_to_s3(url: str, bucket: str, s3_key: str, chunk_size: int = 8192):    
+def stream_url_to_s3(url: str, bucket: str, s3_key: str, headers: dict = {}) -> None:
     s3 = boto3.client('s3')
-    with requests.get(url, stream=True) as r:
+    with requests.get(url, stream=True, headers=headers) as r:
         r.raise_for_status()
-        with s3.upload_fileobj(r.raw, bucket, s3_key) as f:
-            for chunk in r.iter_content(chunk_size=chunk_size):
-                if chunk:
-                    f.write(chunk)
-    print(f"Uploaded data from {url} to s3://{bucket}/{s3_key}")
+        s3.upload_fileobj(r.raw, bucket, s3_key)
+
+    logger.info("Uploaded data from %s to s3://%s/%s", url, bucket, s3_key)
 
 def slack_failed_task(context):
     """slack_failed_task Function to be used as a callable for no_failure_callback
@@ -139,7 +138,7 @@ clone_repo_cmd =f"""
  	git checkout $GIT_COMMIT &&
     cd .."""
 
-    
+
 clone_and_setup_repo_cmd= f"""
 	{clone_repo_cmd} &&
 	cd houseuk-astro"""

@@ -7,6 +7,8 @@ theme:
 
 nav:
   - Home: index.md
+  - CI/CD: ci-cd.md
+  - Changelog: changelog.md
   - Architecture: architecture.md
   - Script Catalog: scripts.md
   - Extract Layer: extract.md
@@ -27,9 +29,8 @@ plugins:
         python:
           options:
             docstring_style: numpy
-  
+
 markdown_extensions:
   - admonition
   - toc:
       permalink: true
-
