@@ -6,7 +6,8 @@
   - Runs on push and pull requests.
   - Python checks:
     - `uv sync --frozen --group dev --group docs`
-    - `uv run ruff check extract lambda/stream_unzip_s3.py tests/airbnb tests/include`
+    - `uv run pre-commit run ruff-check`
+    - `uv run pre-commit run ruff-format`
     - `uv run mypy`
     - `uv run pytest tests/airbnb tests/include`
     - `uv run mkdocs build`
@@ -42,6 +43,9 @@ Local consistency hooks are configured in `.pre-commit-config.yaml`:
 - `check-merge-conflict`
 - `ruff-format`
 - `ruff-check`
+
+Ruff policy is configured in `pyproject.toml` and includes:
+- `T201` (`print` statement detection), with per-file ignore for `tests/**` and `examples/**`.
 
 Set up once:
 

@@ -4,6 +4,7 @@ This module resolves the latest InsideAirbnb listings dataset for a market,
 uploads the dated snapshot to S3, and refreshes a stable `latest` object key.
 """
 
+import logging
 import os
 import re
 
@@ -12,10 +13,12 @@ import requests
 from fire import Fire
 
 from extract.utils import stream_to_s3
+from include.logging_config import configure_logging
 
 LISTINGS_URL_PATTERN = re.compile(
     r"https://data\.insideairbnb\.com/(?P<country>[^/]+)/(?P<region>[^/]+)/(?P<market>[^/]+)/(?P<snapshot_date>\d{4}-\d{2}-\d{2})/data/listings\.csv\.gz"
 )
+logger = logging.getLogger(__name__)
 
 
 def _s3_client():
@@ -150,10 +153,18 @@ def extract_latest_market_snapshot(
         },
     )
 
-    print(
-        f"Uploaded {city} snapshot {snapshot_date} from {url} to s3://{bucket}/{dated_key} and refreshed s3://{bucket}/{latest_key}"
+    logger.info(
+        "source=%s action=%s city=%s snapshot_date=%s bucket=%s dated_key=%s latest_key=%s",
+        "airbnb",
+        "upload_success",
+        city,
+        snapshot_date,
+        bucket,
+        dated_key,
+        latest_key,
     )
 
 
 if __name__ == "__main__":
+    configure_logging()
     Fire(extract_latest_market_snapshot)

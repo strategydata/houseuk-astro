@@ -5,5 +5,6 @@ The extract layer pulls external datasets into S3. The following extractors are 
 - InsideAirbnb
 - UK Crime (current Python extractor)
 - Land Registry
+- EPC
 
 See API Reference for Python module-level documentation.

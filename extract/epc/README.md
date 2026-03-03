@@ -13,24 +13,21 @@ Documentation and plan for ingesting EPC datasets from Open Data Communities.
 
 ## Current Status
 
-- Extraction code is not implemented yet in this repository.
-- This folder currently tracks source conventions and expected output naming.
+- Extraction code is implemented in `extract/epc/src/execute.py`.
+- The CLI supports:
+  - `bulk --start_year=YYYY --end_year=YYYY`
+  - `incremental --year=YYYY [--month=MM]`
 
-## Planned CLI Contract
-
-When implemented, the extractor should accept:
-
-- `url`
-- `bucket`
-- `key`
-
-and use the same streaming upload pattern as other Python extractors.
-
-## Example Planned Invocation
+## Example Invocation
 
 ```bash
-python extract/epc/src/execute.py \
-  --url="https://epc.opendatacommunities.org/files/domestic-2025.zip" \
-  --bucket="quibbler-house-data-lake" \
-  --key="raw/epc/domestic-2025.zip"
+python extract/epc/src/execute.py bulk --start_year=2024 --end_year=2025
+python extract/epc/src/execute.py incremental --year=2026
+python extract/epc/src/execute.py incremental --year=2026 --month=1
 ```
+
+## Logging
+
+- Uses shared `include/logging_config.py` bootstrap for non-Airflow logging.
+- Default level is `INFO` (`LOG_LEVEL` override supported).
+- Set `LOG_JSON=true` for JSON structured output.

@@ -20,6 +20,27 @@ Run hooks across the repository:
 uv run pre-commit run --all-files
 ```
 
+Run only Ruff hooks:
+
+```bash
+uv run pre-commit run ruff-check --all-files
+uv run pre-commit run ruff-format --all-files
+```
+
+## Logging configuration
+
+Non-Airflow Python entrypoints use `include/logging_config.py`.
+
+- `LOG_LEVEL` controls log level (default `INFO`)
+- `LOG_JSON=true` enables JSON logs
+
+Examples:
+
+```bash
+LOG_LEVEL=DEBUG uv run python extract/epc/src/execute.py bulk --start_year=2024 --end_year=2025
+LOG_JSON=true uv run python extract/airbnb/src/execute.py --city="london" --country-slug="united-kingdom" --region-slug="england" --market-slug="london" --page-url="https://insideairbnb.com/london/" --bucket="<your-bucket>"
+```
+
 ## Run extractors manually
 
 InsideAirbnb:

@@ -14,6 +14,7 @@ This catalog summarizes operational scripts and what each one is responsible for
 | `dags/notification/slack_notifier_dag.py` | Airflow DAG | Test DAG for validating Slack failure alerting. |
 | `dags/kube_secrets.py` | Python module | Declares reusable Kubernetes Secret mappings for AWS credentials. |
 | `include/airflow_utils.py` | Python module | Shared Airflow constants, Kubernetes defaults, Slack callback, and bootstrap commands. |
+| `include/logging_config.py` | Python module | Shared logging bootstrap for non-Airflow Python entrypoints (`LOG_LEVEL`, optional JSON formatting). |
 | `include/kubernetes_helpers.py` | Python module | Affinity/toleration selection helpers per workload type/environment. |
 | `lambda/stream_unzip_s3.py` | Lambda Python handler | Unzips S3 `.zip` files, uploads extracted entries, archives and removes original objects. |
 | `lambda/s3_file_router/src/main.rs` | Rust Lambda bootstrap | Runtime entrypoint that registers the router handler. |

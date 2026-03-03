@@ -7,17 +7,12 @@ repos:
       - id: check-yaml
       - id: check-merge-conflict
 
-  - repo: local
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.4
     hooks:
-      - id: ruff-format
-        name: ruff-format
-        entry: uv run ruff format extract lambda/stream_unzip_s3.py tests/airbnb tests/include
-        language: system
-        types: [python]
-        pass_filenames: false
       - id: ruff-check
-        name: ruff-check
-        entry: uv run ruff check extract lambda/stream_unzip_s3.py tests/airbnb tests/include
-        language: system
-        types: [python]
+        args: [extract, lambda/stream_unzip_s3.py, tests/airbnb, tests/include]
+        pass_filenames: false
+      - id: ruff-format
+        args: [extract, lambda/stream_unzip_s3.py, tests/airbnb, tests/include]
         pass_filenames: false

@@ -10,6 +10,7 @@ import urllib.parse
 from include.airflow_utils import amber_dags_defaults
 
 SLACK_WEBHOOK_CONN_ID = os.environ.get("SLACK_WEBHOOK_CONN_ID", "airflow_con_slack_data_science_webhook")
+logger = logging.getLogger(__name__)
 
 
 
@@ -33,7 +34,7 @@ def slack_notifier_dag():
 
     @task
     def failing_task():
-        print("This task will fail ðŸš¨")
+        logger.info("This task will fail")
         raise ValueError("Simulated failure for Slack alert test")
 
     failing_task()
