@@ -15,6 +15,9 @@ Shared DAG defaults and Kubernetes execution settings are centralized in:
 - `include/kubernetes_helpers.py`
 - `dags/kube_secrets.py`
 
+The container image used by extractor DAGs is pinned to a versioned tag
+(`ghcr.io/strategydata/data-infrastructure:2026.03.0`) in `include/airflow_utils.py`.
+
 ## Execution model
 
 DAG tasks mainly run via `KubernetesPodOperator`, clone this repository, and then execute extractor scripts with CLI arguments.

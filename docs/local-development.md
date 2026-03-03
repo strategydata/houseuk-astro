@@ -3,7 +3,21 @@
 ## Python environment (uv)
 
 ```bash
-uv sync
+uv sync --group dev --group docs
+```
+
+## Code quality and consistency
+
+Install pre-commit hooks:
+
+```bash
+uv run pre-commit install
+```
+
+Run hooks across the repository:
+
+```bash
+uv run pre-commit run --all-files
 ```
 
 ## Run extractors manually

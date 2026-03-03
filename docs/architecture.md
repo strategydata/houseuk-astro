@@ -7,6 +7,7 @@
 - `include/`: Shared DAG helper modules (defaults, Kubernetes helpers, notification callbacks).
 - `lambda/`: AWS Lambda services for S3 file routing and decompression workflows.
 - `tests/`: Unit and DAG tests.
+- `.github/workflows/`: CI quality gates and docs publishing pipelines.
 
 ## High-level flow
 

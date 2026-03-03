@@ -8,14 +8,15 @@
 - Script-by-script responsibilities
 - Airflow DAG behavior and scheduling
 - Lambda components and routing logic
+- CI/CD quality gates and docs publishing
 - Auto-generated Python API reference from source code
 
 ## Quick start
 
-Install dependencies with uv:
+Install runtime + local tooling dependencies with uv:
 
 ```bash
-uv sync
+uv sync --group dev --group docs
 ```
 
 Serve docs locally:
