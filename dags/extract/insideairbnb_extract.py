@@ -1,3 +1,5 @@
+﻿"""Airflow DAG for scheduled InsideAirbnb extraction across configured UK markets."""
+
 from airflow.sdk import dag
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 from kubernetes.client import models as k8s

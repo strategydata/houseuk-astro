@@ -1,3 +1,5 @@
+﻿"""Utility DAG used to test Slack failure notifications."""
+
 from airflow.decorators import dag, task
 from datetime import datetime
 import logging
@@ -31,7 +33,7 @@ def slack_notifier_dag():
 
     @task
     def failing_task():
-        print("This task will fail 🚨")
+        print("This task will fail ðŸš¨")
         raise ValueError("Simulated failure for Slack alert test")
 
     failing_task()

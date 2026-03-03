@@ -1,21 +1,36 @@
-## :house: Extracting EPC data from Open Data Communities
-This process handles the ingestion of house EPC dataset. The script streams data directly from the inside Airbnb to our s3 data lake to ensure efficient memory usage for large-scale files.
+# EPC Extract
 
-## :hammer_and_wrench: Configuration Parameters
-when running the extraction script, using the following parameters to define the source and destinations:
+Documentation and plan for ingesting EPC datasets from Open Data Communities.
 
-| parameter | Value | Description |
-| :--- | :--- | :--- |
-| url | ```https://epc.opendatacommunities.org/files/domestic-2025.zip``` | The source URL for yearly updated
-| bucket | ```quibbler-house-data-lake``` | The target S3 bucket where the raw data is stored.
-| key | ```raw/epc/domestic-2025.zip``` | The destination path and filename within the S3 bucket
+## Source
 
-## :bulb: Data Dataset Coverage
-The Open Data communities maintains a robust archive of historical data. You can programmatically access these files by modifying the year in the URL.
-- **Available Range**: 2008 to 2025.
-- **format**:zip
-- **Naming Convention**: `domestic-YYYY.zip`
+- Base URL pattern: `https://epc.opendatacommunities.org/files/domestic-YYYY.zip`
+- Example: `https://epc.opendatacommunities.org/files/domestic-2025.zip`
 
+## Target S3 Layout
 
-## :rocket: Usage
-Execute the script to access data by `https://epc.opendatacommunities.org/files/domestic-2025.zip`
+- `raw/epc/domestic-YYYY.zip`
+
+## Current Status
+
+- Extraction code is not implemented yet in this repository.
+- This folder currently tracks source conventions and expected output naming.
+
+## Planned CLI Contract
+
+When implemented, the extractor should accept:
+
+- `url`
+- `bucket`
+- `key`
+
+and use the same streaming upload pattern as other Python extractors.
+
+## Example Planned Invocation
+
+```bash
+python extract/epc/src/execute.py \
+  --url="https://epc.opendatacommunities.org/files/domestic-2025.zip" \
+  --bucket="quibbler-house-data-lake" \
+  --key="raw/epc/domestic-2025.zip"
+```

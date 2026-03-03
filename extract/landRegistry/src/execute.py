@@ -1,3 +1,8 @@
+﻿"""Land Registry extractor CLI entrypoint.
+
+This script exposes the shared `stream_to_s3` helper through Fire for manual runs and DAG-driven execution.
+"""
+
 import os
 import requests
 import boto3

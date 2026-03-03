@@ -1,3 +1,5 @@
+﻿"""Shared extraction utilities used by multiple extract scripts."""
+
 import boto3
 import requests
 import os

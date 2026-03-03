@@ -1,3 +1,8 @@
+﻿"""InsideAirbnb extractor entrypoint.
+
+Resolves the latest listings snapshot URL for a market and uploads both a dated object and a `latest/` pointer object to S3.
+"""
+
 import os
 import re
 
@@ -88,3 +93,4 @@ def extract_latest_market_snapshot(
 
 if __name__ == "__main__":
     Fire(extract_latest_market_snapshot)
+

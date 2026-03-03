@@ -1,0 +1,41 @@
+﻿site_name: houseuk-astro Documentation
+site_description: Data extraction and orchestration docs for houseuk-astro
+repo_name: houseuk-astro
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Script Catalog: scripts.md
+  - Extract Layer: extract.md
+  - Airflow: airflow.md
+  - Lambda: lambda.md
+  - Local Development: local-development.md
+  - API Reference:
+    - Overview: api/index.md
+    - extract.utils: api/extract_utils.md
+    - extract.airbnb.src.execute: api/airbnb_execute.md
+    - extract.crime.current.execute: api/crime_execute.md
+    - extract.landRegistry.src.execute: api/landregistry_execute.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - .
+          options:
+            show_root_heading: true
+            show_root_full_path: false
+            show_source: true
+            members_order: source
+            docstring_style: google
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+

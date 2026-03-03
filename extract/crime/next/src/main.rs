@@ -1,3 +1,5 @@
+﻿//! Experimental Rust prototype for crime data download and archive handling.
+
 use async_zip::base::read::seek::ZipFileReader;
 use std::path::Path;
 use tokio::fs::{self, File};
@@ -91,3 +93,4 @@ async fn main() -> Result<()> {
 
     Ok(())
 }
+

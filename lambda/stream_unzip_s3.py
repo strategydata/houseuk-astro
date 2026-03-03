@@ -1,3 +1,5 @@
+﻿"""Lambda handler that unzips incoming S3 `.zip` objects, uploads extracted files, and archives the original zip object."""
+
 import boto3
 import io
 import os

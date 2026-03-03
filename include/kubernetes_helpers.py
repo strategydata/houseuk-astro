@@ -1,3 +1,8 @@
+﻿"""Kubernetes scheduling helpers for DAG task pods.
+
+Provides affinity/toleration selectors for local testing, extraction workloads, dbt workloads, and production defaults.
+"""
+
 from os import environ as env
 
 
@@ -60,3 +65,4 @@ def get_toleration(tolerations):
     if tolerations == "dbt":
         return dbt_tolerations
     return production_tolerations
+

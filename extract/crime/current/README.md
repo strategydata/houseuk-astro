@@ -1,27 +1,37 @@
-## 🚔 Extracting UK Crime Data
-This process involves downloading historical crime data snapshots from the official UK Police data portal and archiving them into our internal S3 data lake for further processing.
+# UK Crime Extract (Current Python)
 
-## :hammer_and_wrench: Configuration Parameters
+Downloads a monthly UK Police archive ZIP and stores it in S3.
 
-When running the extraction script, use the following parameters to define the source and destination:
-| parameter | Value | Description |
-| :--- | :--- | :--- |
-| url | ```https://data.police.uk/data/archive/2025-12.zip``` | The direct download link for the monthly data package.
-| bucket | ```quibbler-house-data-lake``` | The target S3 bucket where the raw data is stored.
-| key | ```raw/crime/2025-12.zip``` | The specific folder path and filename within the bucket
+## Source
 
+- Base archive URL: `https://data.police.uk/data/archive/`
+- File pattern: `YYYY-MM.zip`
+- Example: `https://data.police.uk/data/archive/2025-12.zip`
 
-## :bulb: Data Archive Coverage
-The UK Police Department maintains a robust archive of historical data. You can programmatically access these files by modifying the date in the URL.
-- **Available Range**: December 2013 to December 2025.
-- **format**: zip
-- **Naming Convention**: ```YYYY-MM.zip```
+## Entrypoint
 
-## :rocket: Usage
+- Script: `extract/crime/current/execute.py`
+- CLI function: `stream_to_s3(url, bucket, key)`
 
-Execute the script via the command line using the following examples:
+## Required CLI Args
 
-**2025-12**
+- `url`
+- `bucket`
+- `key`
+
+## Example
+
 ```bash
-python extract/crime/current/execute.py --url="https://data.police.uk/data/archive/2025-12.zip" --bucket="quibbler-house-data-lake" --key="raw/crime/2025-12.zip"
+python extract/crime/current/execute.py \
+  --url="https://data.police.uk/data/archive/2025-12.zip" \
+  --bucket="quibbler-house-data-lake" \
+  --key="raw/crime/2025-12.zip"
 ```
+
+## Airflow
+
+- DAG: `dags/extract/crime_extract.py`
+- Schedule: `0 7 1 * *` (monthly)
+- Start date: `2026-01-01`
+
+Note: DAG command path should target `extract/crime/current/execute.py`.
