@@ -227,8 +227,8 @@ async fn trigger_fargate(
             AwsVpcConfiguration::builder()
                 .set_subnets(Some(config.ecs_subnets.clone()))
                 .set_security_groups(Some(config.ecs_security_groups.clone()))
-                .assign_public_ip(config.ecs_assign_public_ip)
-                .build(),
+                .assign_public_ip(config.ecs_assign_public_ip.clone())
+                .build()?,
         )
         .build();
 

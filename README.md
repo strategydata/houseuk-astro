@@ -13,7 +13,9 @@ Your Astro project contains the following files and folders:
 - Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
 - include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
 - packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
+- pyproject.toml: Defines Python project dependencies for `uv sync`.
+- uv.lock: Locked dependency graph used by `uv sync --frozen` in CI.
+- requirements.txt: Auto-generated from `uv.lock` for compatibility with tools that still expect this file.
 - plugins: Add custom or community plugins for your project to this file. It is empty by default.
 - airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
 
@@ -79,3 +81,16 @@ Extractor documentation lives under `extract/`:
 [Astro Documentation](https://www.astronomer.io/docs/astro/overview)
 [Kubernetes](https://kubernetes.io/docs/home/)
 [Airflow](https://airflow.apache.org/docs/apache-airflow/stable/index.html)
+
+# Engineering Baseline
+
+- Install all local quality tooling:
+  - `uv sync --group dev --group docs`
+- Run production baseline checks locally:
+  - `uv run ruff check extract lambda/stream_unzip_s3.py tests/airbnb tests/include`
+  - `uv run mypy`
+  - `uv run pytest tests/airbnb tests/include`
+  - `uv run mkdocs build`
+  - `cd lambda/s3_file_router && cargo test --locked`
+- Install pre-commit hooks:
+  - `uv run pre-commit install`

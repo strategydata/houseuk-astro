@@ -12,22 +12,22 @@
 
 ## Quick start
 
-Install dependencies:
+Install dependencies with uv:
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 Serve docs locally:
 
 ```bash
-mkdocs serve
+uv run mkdocs serve
 ```
 
 Build static docs:
 
 ```bash
-mkdocs build
+uv run mkdocs build
 ```
 
 Generated static files are written to `site/`.
