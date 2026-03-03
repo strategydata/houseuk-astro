@@ -1,13 +1,13 @@
 ﻿"""Lambda handler that unzips incoming S3 `.zip` objects, uploads extracted files, and archives the original zip object."""
 
-import boto3
 import io
+import mimetypes
 import os
 import zipfile
-import mimetypes
 from datetime import datetime
-from aws_lambda_powertools import Logger
 
+import boto3
+from aws_lambda_powertools import Logger
 
 logger=Logger()
 s3 = boto3.client('s3')

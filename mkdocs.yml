@@ -22,6 +22,11 @@ nav:
 
 plugins:
   - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
   
 markdown_extensions:
   - admonition

@@ -13,7 +13,7 @@ import logging
 from airflow.providers.slack.notifications.slack import send_slack_notification
 from kubernetes.client import models as k8s
 import os
-DATA_IMAGE="ghcr.io/strategydata/data-infrastructure:latest"
+DATA_IMAGE = "ghcr.io/strategydata/data-infrastructure:2026.03.0"
 IMAGE_URL = "https://raw.githubusercontent.com/apache/airflow/main/airflow-core/src/airflow/ui/public/pin_100.png"
 SSH_REPO="git@github.com:strategydata/houseuk-astro.git"
 HTTP_REPO="https://github.com/strategydata/houseuk-astro.git"

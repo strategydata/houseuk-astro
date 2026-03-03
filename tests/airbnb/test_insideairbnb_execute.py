@@ -6,7 +6,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MODULE_NAME = "insideairbnb_execute_under_test"
 MODULE_FILE = REPO_ROOT / "extract" / "airbnb" / "src" / "execute.py"

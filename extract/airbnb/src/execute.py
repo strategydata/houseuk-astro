@@ -1,6 +1,7 @@
 ﻿"""InsideAirbnb extractor entrypoint.
 
-Resolves the latest listings snapshot URL for a market and uploads both a dated object and a `latest/` pointer object to S3.
+This module resolves the latest InsideAirbnb listings dataset for a market,
+uploads the dated snapshot to S3, and refreshes a stable `latest` object key.
 """
 
 import os
@@ -18,6 +19,13 @@ LISTINGS_URL_PATTERN = re.compile(
 
 
 def _s3_client():
+    """Create an S3 client using environment-based AWS credentials.
+
+    Returns
+    -------
+    botocore.client.S3
+        Configured S3 client.
+    """
     return boto3.client(
         "s3",
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
@@ -26,7 +34,38 @@ def _s3_client():
     )
 
 
-def resolve_latest_listings_url(page_url: str, country_slug: str, region_slug: str, market_slug: str):
+def resolve_latest_listings_url(
+    page_url: str,
+    country_slug: str,
+    region_slug: str,
+    market_slug: str,
+) -> tuple[str, str]:
+    """Resolve the newest listings dataset URL for a target market page.
+
+    Parameters
+    ----------
+    page_url : str
+        InsideAirbnb market page URL (e.g. ``https://insideairbnb.com/london/``).
+    country_slug : str
+        Country path segment expected in the dataset URL.
+    region_slug : str
+        Region path segment expected in the dataset URL.
+    market_slug : str
+        Market path segment expected in the dataset URL.
+
+    Returns
+    -------
+    tuple[str, str]
+        A tuple ``(dataset_url, snapshot_date)`` where ``snapshot_date``
+        is in ``YYYY-MM-DD`` format.
+
+    Raises
+    ------
+    requests.HTTPError
+        If the page request fails.
+    ValueError
+        If no matching listings URL is found.
+    """
     response = requests.get(page_url, timeout=30)
     response.raise_for_status()
 
@@ -60,7 +99,32 @@ def extract_latest_market_snapshot(
     market_slug: str,
     page_url: str,
     bucket: str,
-):
+) -> None:
+    """Download and publish the newest InsideAirbnb market snapshot.
+
+    This function uploads a dated object and then copies it to a stable
+    ``latest`` key with metadata for lineage.
+
+    Parameters
+    ----------
+    city : str
+        City identifier used in S3 object keys.
+    country_slug : str
+        Country segment used to match InsideAirbnb dataset URLs.
+    region_slug : str
+        Region segment used to match InsideAirbnb dataset URLs.
+    market_slug : str
+        Market segment used to match InsideAirbnb dataset URLs.
+    page_url : str
+        InsideAirbnb page URL for the market.
+    bucket : str
+        Target S3 bucket.
+
+    Returns
+    -------
+    None
+        Uploads objects to S3 as side effects.
+    """
     url, snapshot_date = resolve_latest_listings_url(
         page_url=page_url,
         country_slug=country_slug,
@@ -93,4 +157,3 @@ def extract_latest_market_snapshot(
 
 if __name__ == "__main__":
     Fire(extract_latest_market_snapshot)
-
