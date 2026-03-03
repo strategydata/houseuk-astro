@@ -1,3 +1,8 @@
+﻿"""Shared Airflow constants and helper utilities.
+
+This module centralizes DAG defaults, KubernetesPodOperator defaults, Slack failure notification wiring, and repository bootstrap commands used by DAG tasks.
+"""
+
 import airflow
 from airflow.sdk import dag, task
 import requests

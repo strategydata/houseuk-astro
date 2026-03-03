@@ -1,3 +1,5 @@
+﻿"""Reusable Kubernetes Secret bindings for AWS credentials in DAG task pods."""
+
 from airflow.providers.cncf.kubernetes.secret import Secret
 
 
@@ -14,4 +16,5 @@ AWS_SECRET_ACCESS_KEY =Secret(
     secret="airflow-credentials",
     key="AWS_SECRET_ACCESS_KEY",
     )
+
 

@@ -1,0 +1,32 @@
+# UK Crime Extract (Next Rust Prototype)
+
+Experimental Rust implementation for a future crime ingest pipeline.
+
+## Current State
+
+- Crate path: `extract/crime/next`
+- Main file: `extract/crime/next/src/main.rs`
+- Status: prototype / work in progress
+
+The code currently demonstrates downloading a ZIP archive. The S3 upload and unzip-to-S3 flow is scaffolded but commented out.
+
+## Planned Pipeline
+
+1. Download monthly archive ZIP.
+2. Upload raw ZIP to S3.
+3. Unzip entries.
+4. Upload extracted files to processed S3 prefix.
+
+## Build / Run
+
+```bash
+cd extract/crime/next
+cargo run
+```
+
+## Dependencies
+
+- `reqwest`
+- `tokio`
+- `aws-sdk-s3` (planned usage in commented code)
+- `async_zip` (planned usage in commented code)

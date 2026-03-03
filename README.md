@@ -61,6 +61,17 @@ The Astronomer CLI is maintained with love by the Astronomer team. To report a b
 # Inspiration
 this project is inspire by [GitLab-Data](https://gitlab.com/gitlab-data)
 
+# Extractors
+
+Extractor documentation lives under `extract/`:
+
+- [Extract Layer Overview](extract/README.md)
+- [InsideAirbnb Extract](extract/airbnb/README.md)
+- [UK Crime Extract (Current Python)](extract/crime/current/README.md)
+- [UK Crime Extract (Next Rust Prototype)](extract/crime/next/src/README)
+- [Land Registry Extract](extract/landRegistry/src/README.md)
+- [EPC Extract](extract/epc/README.md)
+
 # Resources
 
 [Data Engineer parts](https://gitlab.com/gitlab-data)
