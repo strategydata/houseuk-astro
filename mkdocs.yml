@@ -22,18 +22,7 @@ nav:
 
 plugins:
   - search
-  - mkdocstrings:
-      handlers:
-        python:
-          paths:
-            - .
-          options:
-            show_root_heading: true
-            show_root_full_path: false
-            show_source: true
-            members_order: source
-            docstring_style: google
-
+  
 markdown_extensions:
   - admonition
   - toc:
