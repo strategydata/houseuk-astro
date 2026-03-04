@@ -10,6 +10,7 @@ This catalog summarizes operational scripts and what each one is responsible for
 | `extract/crime/current/execute.py` | Python script | UK Crime extractor CLI wrapper around shared streaming utility. |
 | `extract/landRegistry/src/execute.py` | Python script | Land Registry extractor CLI wrapper around shared streaming utility. |
 | `dags/extract/insideairbnb_extract.py` | Airflow DAG | Schedules market-by-market InsideAirbnb extraction tasks in Kubernetes pods. |
+| `dags/extract/epc_extract.py` | Airflow DAG | Schedules EPC incremental extraction in Kubernetes and injects `EPC_AUTH_TOKEN` from Kubernetes Secret. |
 | `dags/extract/crime_extract.py` | Airflow DAG | Schedules UK Crime extraction task in Kubernetes pod. |
 | `dags/extract/landRegistry_extract.py` | Airflow DAG | Schedules Land Registry extraction task in Kubernetes pod. |
 | `dags/notification/slack_notifier_dag.py` | Airflow DAG | Test DAG for validating Slack failure alerting. |

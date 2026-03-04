@@ -9,9 +9,6 @@ import fire
 from include.airflow_utils import stream_url_to_s3
 from include.logging_config import configure_logging
 
-DEFAULT_AUTH_TOKEN = (
-    "a2FuZzcud2FuZ0BnbWFpbC5jb206ZjQ4MzViN2NlMGEwZjA4ZTQ1MTA3MzZhYmRhYTc3ZTNhM2FhYWU1Yw=="
-)
 DEFAULT_S3_BUCKET = "quibbler-house-data-lake"
 DEFAULT_BASE_URL = "https://epc.opendatacommunities.org/api/v1/files"
 DEFAULT_USER_AGENT = "curl/7.68.0"
@@ -23,7 +20,7 @@ logger = logging.getLogger(__name__)
 class EPCConfig:
     bucket: str = DEFAULT_S3_BUCKET
     base_url: str = DEFAULT_BASE_URL
-    auth_token: str = os.getenv("EPC_AUTH_TOKEN", DEFAULT_AUTH_TOKEN)
+    auth_token: str = os.getenv("EPC_AUTH_TOKEN", "")
     user_agent: str = os.getenv("EPC_USER_AGENT", DEFAULT_USER_AGENT)
 
 

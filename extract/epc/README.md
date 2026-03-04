@@ -14,6 +14,7 @@ Documentation and plan for ingesting EPC datasets from Open Data Communities.
 ## Current Status
 
 - Extraction code is implemented in `extract/epc/src/execute.py`.
+- Airflow scheduling is implemented in `dags/extract/epc_extract.py`.
 - The CLI supports:
   - `bulk --start_year=YYYY --end_year=YYYY`
   - `incremental --year=YYYY [--month=MM]`
@@ -38,9 +39,13 @@ uv run python extract/epc/src/execute.py incremental --year=2026 --month=1
 
 ## Runtime Configuration
 
-The EPC CLI can be configured with environment variables:
+The EPC CLI is configured with environment variables:
 
-- `EPC_AUTH_TOKEN`: Basic auth token for Open Data Communities requests.
+- `EPC_AUTH_TOKEN` (required): Basic auth token for Open Data Communities requests.
 - `EPC_USER_AGENT`: user-agent header sent to the source API.
 - `LOG_LEVEL`: log verbosity for CLI runs.
 - `LOG_JSON`: if true, emit JSON logs.
+
+For Airflow Kubernetes runs, `EPC_AUTH_TOKEN` is injected via
+`dags/kube_secrets.py` (`EPC_AUTH_TOKEN` secret mapping), so the token does not
+need to exist in source code.

@@ -72,7 +72,7 @@ def test_stream_to_s3_returns_false_on_not_found_without_error_log(monkeypatch, 
         execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream)
     )
     caplog.set_level(logging.INFO, logger=execute_module.logger.name)
-    pipeline = execute_module.EPCPipeline()
+    pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))
 
     assert pipeline._stream_to_s3("2025-01") is False
     assert not [rec for rec in caplog.records if rec.levelno >= logging.ERROR]
@@ -93,7 +93,7 @@ def test_stream_to_s3_other_failures_are_info_only(monkeypatch, caplog):
         execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream)
     )
     caplog.set_level(logging.INFO, logger=execute_module.logger.name)
-    pipeline = execute_module.EPCPipeline()
+    pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))
 
     assert pipeline._stream_to_s3("2025-01") is False
     assert not [rec for rec in caplog.records if rec.levelno >= logging.ERROR]
@@ -101,7 +101,7 @@ def test_stream_to_s3_other_failures_are_info_only(monkeypatch, caplog):
 
 def test_bulk_calls_stream_for_each_year(monkeypatch):
     execute_module = load_execute_module()
-    pipeline = execute_module.EPCPipeline()
+    pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))
     called: list[str] = []
 
     monkeypatch.setattr(pipeline, "_stream_to_s3", lambda identifier: called.append(identifier))
@@ -112,7 +112,7 @@ def test_bulk_calls_stream_for_each_year(monkeypatch):
 
 def test_incremental_specific_month_calls_single_identifier(monkeypatch):
     execute_module = load_execute_module()
-    pipeline = execute_module.EPCPipeline()
+    pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))
     called: list[str] = []
 
     monkeypatch.setattr(pipeline, "_stream_to_s3", lambda identifier: called.append(identifier))
@@ -123,7 +123,7 @@ def test_incremental_specific_month_calls_single_identifier(monkeypatch):
 
 def test_incremental_scan_breaks_after_current_month_failure(monkeypatch):
     execute_module = load_execute_module()
-    pipeline = execute_module.EPCPipeline()
+    pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))
     called: list[str] = []
 
     class _FakeNow:
@@ -164,3 +164,11 @@ def test_pipeline_requires_auth_token():
         raise AssertionError("Expected ValueError for empty auth token")
     except ValueError as exc:
         assert "EPC auth token is required" in str(exc)
+
+
+def test_pipeline_reads_auth_token_from_env(monkeypatch):
+    monkeypatch.setenv("EPC_AUTH_TOKEN", "from-env-token")
+    execute_module = load_execute_module()
+    pipeline = execute_module.EPCPipeline()
+
+    assert pipeline.config.auth_token == "from-env-token"
