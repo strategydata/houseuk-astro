@@ -6,6 +6,7 @@ This catalog summarizes operational scripts and what each one is responsible for
 | --- | --- | --- |
 | `extract/utils.py` | Python module | Shared `stream_to_s3` helper for streaming HTTP downloads to S3. |
 | `extract/airbnb/src/execute.py` | Python script | Resolves latest InsideAirbnb snapshot and writes dated + latest objects to S3. |
+| `extract/epc/src/execute.py` | Python script | EPC extractor CLI; builds year/month identifiers and delegates transfer/error handling to `include.airflow_utils.stream_url_to_s3`. |
 | `extract/crime/current/execute.py` | Python script | UK Crime extractor CLI wrapper around shared streaming utility. |
 | `extract/landRegistry/src/execute.py` | Python script | Land Registry extractor CLI wrapper around shared streaming utility. |
 | `dags/extract/insideairbnb_extract.py` | Airflow DAG | Schedules market-by-market InsideAirbnb extraction tasks in Kubernetes pods. |
