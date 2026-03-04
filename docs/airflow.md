@@ -6,6 +6,7 @@
 - `crime_extract`: Monthly schedule (`0 7 1 * *`) for UK Crime data.
 - `landRegistry_extract`: Monthly schedule (`0 6 1 * *`) for Land Registry data.
 - `epc_extract`: Monthly schedule (`0 8 1 * *`) for EPC incremental ingestion.
+- `epc_annual_extract`: Yearly schedule (`0 9 1 1 *`) to refresh the previous year's EPC dataset.
 - `slack`: On-demand test DAG for Slack failure notifications.
 
 ## Shared configuration
