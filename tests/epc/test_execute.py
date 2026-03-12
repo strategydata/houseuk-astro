@@ -36,14 +36,14 @@ def test_stream_to_s3_calls_airflow_helper_and_returns_true(monkeypatch):
         }
 
     monkeypatch.setattr(
-        execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream)
+        execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream),
     )
     pipeline = execute_module.EPCPipeline(
         execute_module.EPCConfig(
             bucket="quibbler-house-data-lake",
             auth_token="token-value",
             user_agent="ua/1.0",
-        )
+        ),
     )
 
     success = pipeline._stream_to_s3("2025")
@@ -69,7 +69,7 @@ def test_stream_to_s3_returns_false_on_not_found_without_error_log(monkeypatch, 
         }
 
     monkeypatch.setattr(
-        execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream)
+        execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream),
     )
     caplog.set_level(logging.INFO, logger=execute_module.logger.name)
     pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))
@@ -90,7 +90,7 @@ def test_stream_to_s3_other_failures_are_info_only(monkeypatch, caplog):
         }
 
     monkeypatch.setattr(
-        execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream)
+        execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream),
     )
     caplog.set_level(logging.INFO, logger=execute_module.logger.name)
     pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))

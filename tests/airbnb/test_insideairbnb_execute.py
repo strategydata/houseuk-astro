@@ -38,7 +38,7 @@ def test_selects_latest_snapshot_for_market(execute_module):
             "https://data.insideairbnb.com/united-kingdom/england/bristol/2025-03-19/data/listings.csv.gz",
             "https://data.insideairbnb.com/united-kingdom/england/bristol/2025-09-26/data/listings.csv.gz",
             "https://data.insideairbnb.com/united-kingdom/england/london/2025-09-14/data/listings.csv.gz",
-        ]
+        ],
     )
     response = MagicMock()
     response.text = html
