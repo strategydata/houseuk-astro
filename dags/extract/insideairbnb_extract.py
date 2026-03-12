@@ -1,17 +1,18 @@
 ﻿"""Airflow DAG for scheduled InsideAirbnb extraction across configured UK markets."""
 
-from airflow.sdk import dag
-from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
-from kubernetes.client import models as k8s
 from datetime import datetime
 
+from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+from airflow.sdk import dag
+from kubernetes.client import models as k8s
+
+from dags.kube_secrets import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from include.airflow_utils import (
     DATA_IMAGE,
     amber_dags_defaults,
     amber_kube_defaults,
     clone_and_setup_repo_cmd,
 )
-from dags.kube_secrets import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 
 BUCKET = "quibbler-house-data-lake"
 

@@ -16,10 +16,12 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "moto>=5.1.22",
     "mypy==1.18.2",
     "pre-commit==4.3.0",
     "pytest==9.0.0",
     "pytest-cov==7.0.0",
+    "responses>=0.26.0",
     "ruff==0.13.2",
     "types-requests==2.32.4.20250913",
 ]
@@ -38,13 +40,12 @@ python_files = ["test_*.py"]
 
 [tool.ruff]
 target-version = "py313"
-line-length = 100
+line-length = 120
 extend-exclude = [".astro", "extract/crime/next/target"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B"]
-extend-select = ["T201"]
-ignore = ["E501"]
+select = ["ALL"]
+
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["T201"]

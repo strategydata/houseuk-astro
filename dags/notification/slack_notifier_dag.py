@@ -1,12 +1,11 @@
 ﻿"""Utility DAG used to test Slack failure notifications."""
 
-from airflow.decorators import dag, task
-from datetime import datetime
 import logging
-from airflow.models import Variable
 import os
-from airflow.providers.slack.operators.slack_webhook import SlackWebhookHook
-import urllib.parse
+from datetime import datetime
+
+from airflow.decorators import dag, task
+
 from include.airflow_utils import amber_dags_defaults
 
 SLACK_WEBHOOK_CONN_ID = os.environ.get("SLACK_WEBHOOK_CONN_ID", "airflow_con_slack_data_science_webhook")

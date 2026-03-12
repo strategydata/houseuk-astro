@@ -29,7 +29,7 @@ class EPCPipeline:
         self.config = config or EPCConfig()
         if not self.config.auth_token:
             raise ValueError(
-                "EPC auth token is required. Set EPC_AUTH_TOKEN or pass EPCConfig(auth_token=...)."
+                "EPC auth token is required. Set EPC_AUTH_TOKEN or pass EPCConfig(auth_token=...).",
             )
 
     @staticmethod

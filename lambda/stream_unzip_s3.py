@@ -72,7 +72,7 @@ def lambda_handler(event, context):
             extra={"archive_key": archive_key, "old_key": old_key, "bucket": bucket},
         )
         s3.copy_object(
-            Bucket=bucket, CopySource={"Bucket": bucket, "Key": old_key}, Key=archive_key
+            Bucket=bucket, CopySource={"Bucket": bucket, "Key": old_key}, Key=archive_key,
         )
         s3.delete_object(Bucket=bucket, Key=old_key)
         logger.info(
@@ -82,6 +82,6 @@ def lambda_handler(event, context):
         return {"status": "success", "archive_key": archive_key}
     except Exception as e:
         logger.error(
-            "Error processing file", extra={"error": str(e), "bucket": bucket, "key": old_key}
+            "Error processing file", extra={"error": str(e), "bucket": bucket, "key": old_key},
         )
         return {"status": "error", "message": str(e)}

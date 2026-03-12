@@ -186,8 +186,8 @@ def slack_failed_task(context):
 
     Args:
         context (_type_): _description_
-    """
 
+    """
     blocks_val = [
         {
             "type": "section",

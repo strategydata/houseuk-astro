@@ -35,6 +35,7 @@ def stream_to_s3(url: str, bucket: str, key: str) -> None:
         If the source URL returns a non-success status code.
     botocore.exceptions.BotoCoreError
         If the S3 upload fails.
+
     """
     s3 = boto3.client(
         "s3",

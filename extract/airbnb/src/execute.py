@@ -16,7 +16,7 @@ from extract.utils import stream_to_s3
 from include.logging_config import configure_logging
 
 LISTINGS_URL_PATTERN = re.compile(
-    r"https://data\.insideairbnb\.com/(?P<country>[^/]+)/(?P<region>[^/]+)/(?P<market>[^/]+)/(?P<snapshot_date>\d{4}-\d{2}-\d{2})/data/listings\.csv\.gz"
+    r"https://data\.insideairbnb\.com/(?P<country>[^/]+)/(?P<region>[^/]+)/(?P<market>[^/]+)/(?P<snapshot_date>\d{4}-\d{2}-\d{2})/data/listings\.csv\.gz",
 )
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ def _s3_client():
     -------
     botocore.client.S3
         Configured S3 client.
+
     """
     return boto3.client(
         "s3",
@@ -68,6 +69,7 @@ def resolve_latest_listings_url(
         If the page request fails.
     ValueError
         If no matching listings URL is found.
+
     """
     response = requests.get(page_url, timeout=30)
     response.raise_for_status()
@@ -83,12 +85,12 @@ def resolve_latest_listings_url(
                 {
                     "url": match.group(0),
                     "snapshot_date": match.group("snapshot_date"),
-                }
+                },
             )
 
     if not matches:
         raise ValueError(
-            f"No listings dataset URL found for {country_slug}/{region_slug}/{market_slug} at {page_url}"
+            f"No listings dataset URL found for {country_slug}/{region_slug}/{market_slug} at {page_url}",
         )
 
     latest = max(matches, key=lambda item: item["snapshot_date"])
@@ -127,6 +129,7 @@ def extract_latest_market_snapshot(
     -------
     None
         Uploads objects to S3 as side effects.
+
     """
     url, snapshot_date = resolve_latest_listings_url(
         page_url=page_url,

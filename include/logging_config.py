@@ -76,7 +76,6 @@ def configure_logging(
     - ``LOG_LEVEL`` (default: ``INFO``)
     - ``LOG_JSON`` (default: ``false``)
     """
-
     configured_level = level if level is not None else os.getenv("LOG_LEVEL")
     resolved_level = (configured_level or "INFO").upper()
     use_json = (
