@@ -27,6 +27,36 @@ uv run pre-commit run ruff-check --all-files
 uv run pre-commit run ruff-format --all-files
 ```
 
+## Airflow local dev (Astro CLI)
+
+Ensure Docker Desktop is running, then validate and start Airflow:
+
+```bash
+astro dev parse
+astro dev start
+```
+
+Run tests inside the Airflow image (matches runtime dependencies):
+
+```bash
+astro dev pytest tests/include
+```
+
+Run full unit test suite locally:
+
+```bash
+uv run pytest
+```
+
+## Keep Astro dependencies in sync
+
+Astro builds install dependencies from `requirements.txt`. When dependencies change:
+
+```bash
+uv lock
+uv export --format requirements-txt --no-hashes --no-dev --no-group docs --output-file requirements.txt
+```
+
 ## Logging configuration
 
 Non-Airflow Python entrypoints use `include/logging_config.py`.

@@ -13,8 +13,11 @@
 
 1. Airflow schedules extractor jobs.
 2. Extractors pull remote datasets and write them to S3 under `raw/` prefixes.
-3. S3-triggered Lambda handlers route compressed files and archive originals.
-4. Large files are routed to ECS Fargate; smaller files are handled by Lambda unzip functions.
+3. S3-triggered routing Lambda archives compressed files and dispatches processing based on size.
+4. Small compressed files are sent to the unzip Lambda; large files are sent to ECS Fargate.
+
+Note: the unzip Lambda currently handles `.zip` archives. `.gz` handling is routed
+by the router and should be configured to use ECS or an alternate handler.
 
 ## Storage conventions
 

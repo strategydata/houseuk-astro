@@ -35,6 +35,43 @@ kubectl create secret generic airflow-credentials --from-env-file=.env/dev.env
 
 ```
 
+## Local Python tooling (uv + Ruff + pre-commit)
+
+Install local tooling and dependencies:
+
+```bash
+uv sync --group dev --group docs
+```
+
+If you change dependencies, keep `requirements.txt` in sync for Astro builds:
+
+```bash
+uv lock
+uv export --format requirements-txt --no-hashes --no-dev --no-group docs --output-file requirements.txt
+```
+
+Run checks:
+
+```bash
+uv run pre-commit run --all-files
+uv run pytest tests/airbnb tests/include
+```
+
+## Airflow local dev (Astro CLI)
+
+Ensure Docker Desktop is running, then validate and start Airflow:
+
+```bash
+astro dev parse
+astro dev start
+```
+
+Run tests inside the Airflow image:
+
+```bash
+astro dev pytest tests/include
+```
+
 
 Start Airflow on your local machine by running 'astro dev start'.
 

@@ -4,12 +4,14 @@ Documentation and plan for ingesting EPC datasets from Open Data Communities.
 
 ## Source
 
-- Base URL pattern: `https://epc.opendatacommunities.org/files/domestic-YYYY.zip`
-- Example: `https://epc.opendatacommunities.org/files/domestic-2025.zip`
+- Base URL pattern: `https://epc.opendatacommunities.org/api/v1/files/domestic-YYYY.zip`
+- Monthly URL pattern: `https://epc.opendatacommunities.org/api/v1/files/domestic-YYYY-MM.zip`
+- Example: `https://epc.opendatacommunities.org/api/v1/files/domestic-2025.zip`
 
 ## Target S3 Layout
 
-- `raw/epc/domestic-YYYY.zip`
+- `raw/epc/{YYYY}/domestic-YYYY.zip`
+- `raw/epc/{YYYY}/domestic-YYYY-MM.zip`
 
 ## Current Status
 

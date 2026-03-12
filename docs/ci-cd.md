@@ -9,10 +9,15 @@
     - `uv run pre-commit run ruff-check`
     - `uv run pre-commit run ruff-format`
     - `uv run mypy`
-    - `uv run pytest tests/airbnb tests/include`
+    - `uv run pytest`
     - `uv run mkdocs build`
   - Rust checks:
     - `cargo test --locked` in `lambda/s3_file_router`
+  - Docs gate (pull requests only):
+    - Fails if new files are added under `dags/`, `extract/`, `include/`, or `lambda/`
+      without a docs update in `docs/`, `README.md`, `CHANGELOG.md`, or `extract/**/README.md`.
+  - Coverage gate (pull requests only):
+    - Enforces minimum coverage on `extract`, `include`, and `dags` via `pytest --cov`.
 
 - `.github/workflows/docs.yml`
   - Runs on push to `main`/`master` and manual dispatch.

@@ -16,13 +16,15 @@ This folder contains all raw ingestion jobs that pull external datasets into S3.
 | UK Crime (current) | `extract/crime/current` | Python | Active | `raw/crime/{YYYY-MM}.zip` |
 | UK Crime (next) | `extract/crime/next` | Rust | Experimental | Planned `raw/crime/...` + processed files |
 | Land Registry | `extract/landRegistry/src` | Python | Active | `raw/land_registry/...` |
-| EPC | `extract/epc` | N/A | Planned | Planned `raw/epc/domestic-YYYY.zip` |
+| EPC | `extract/epc` | Python | Active | `raw/epc/{YYYY}/domestic-{YYYY[-MM]}.zip` |
 
 ## Airflow DAG Mapping
 
 - `dags/extract/insideairbnb_extract.py` -> `extract/airbnb/src/execute.py`
 - `dags/extract/crime_extract.py` -> intended to run `extract/crime/current/execute.py`
 - `dags/extract/landRegistry_extract.py` -> `extract/landRegistry/src/execute.py`
+- `dags/extract/epc_extract.py` -> `extract/epc/src/execute.py` (incremental)
+- `dags/extract/epc_annual_extract.py` -> `extract/epc/src/execute.py` (bulk yearly refresh)
 
 ## Local Run Pattern
 

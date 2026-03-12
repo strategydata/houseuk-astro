@@ -36,3 +36,5 @@ All notable changes to this project are documented in this file.
 - Updated docs for CI/CD, local development, script catalog, and extract layer coverage.
 - Updated EPC extractor README to match implemented CLI behavior.
 - Updated Airflow docs and script catalog to include EPC DAG and secret-injection model.
+- Documented Astro CLI + uv + pre-commit workflow, DAG validation commands, and requirements.txt sync steps.
+- Refreshed docs for CI/CD, architecture, lambda routing, and extract layer status to match current code.

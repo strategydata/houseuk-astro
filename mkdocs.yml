@@ -8,7 +8,7 @@ theme:
 nav:
   - Home: index.md
   - CI/CD: ci-cd.md
-  - Changelog: changelog.md
+  - Changelog: CHANGELOG.md
   - Architecture: architecture.md
   - Script Catalog: scripts.md
   - Extract Layer: extract.md

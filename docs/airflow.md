@@ -34,3 +34,18 @@ Current mappings include:
 ## Execution model
 
 DAG tasks mainly run via `KubernetesPodOperator`, clone this repository, and then execute extractor scripts with CLI arguments.
+
+## Local validation
+
+With Docker running, validate DAG parsing and run tests in the Airflow image:
+
+```bash
+astro dev parse
+astro dev pytest tests/include
+```
+
+For fast unit tests outside the container:
+
+```bash
+uv run pytest tests/include
+```
