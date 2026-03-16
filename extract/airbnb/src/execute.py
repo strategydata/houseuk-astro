@@ -97,12 +97,7 @@ def resolve_latest_listings_url(
 
 
 def extract_latest_market_snapshot(
-    city: str,
-    country_slug: str,
-    region_slug: str,
-    market_slug: str,
-    page_url: str,
-    bucket: str,
+    args: dict[str, str],
 ) -> None:
     """Download and publish the newest InsideAirbnb market snapshot.
 
@@ -111,18 +106,20 @@ def extract_latest_market_snapshot(
 
     Parameters
     ----------
-    city : str
-        City identifier used in S3 object keys.
-    country_slug : str
-        Country segment used to match InsideAirbnb dataset URLs.
-    region_slug : str
-        Region segment used to match InsideAirbnb dataset URLs.
-    market_slug : str
-        Market segment used to match InsideAirbnb dataset URLs.
-    page_url : str
-        InsideAirbnb page URL for the market.
-    bucket : str
-        Target S3 bucket.
+    args : dict[str, str]
+        Dictionary containing the following keys:
+        - city : str
+            City identifier used in S3 object keys.
+        - country_slug : str
+            Country segment used to match InsideAirbnb dataset URLs.
+        - region_slug : str
+            Region segment used to match InsideAirbnb dataset URLs.
+        - market_slug : str
+            Market segment used to match InsideAirbnb dataset URLs.
+        - page_url : str
+            InsideAirbnb page URL for the market.
+        - bucket : str
+            Target S3 bucket.
 
     Returns
     -------
@@ -130,6 +127,13 @@ def extract_latest_market_snapshot(
         Uploads objects to S3 as side effects.
 
     """
+    city: str = args.get("city")
+    country_slug: str = args.get("country_slug")
+    region_slug: str = args.get("region_slug")
+    market_slug: str = args.get("market_slug")
+    page_url: str = args.get("page_url")
+    bucket: str = args.get("bucket")
+
     url, snapshot_date = resolve_latest_listings_url(
         page_url=page_url,
         country_slug=country_slug,
@@ -140,7 +144,7 @@ def extract_latest_market_snapshot(
     dated_key = f"raw/airbnb/{city}/listings_{snapshot_date}.csv.gz"
     latest_key = f"raw/airbnb/{city}/latest/listings.csv.gz"
 
-    stream_to_s3(url=url, bucket=bucket, key=dated_key)
+    stream_to_s3({"url": url, "bucket": bucket, "key": dated_key})
 
     s3 = _s3_client()
     s3.copy_object(
