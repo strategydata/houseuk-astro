@@ -1,7 +1,6 @@
 import importlib.util
 import logging
 import sys
-import types
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -22,22 +21,23 @@ def load_execute_module():
     return module
 
 
-def test_stream_to_s3_calls_airflow_helper_and_returns_true(monkeypatch):
+def test_stream_to_s3_calls_helper_and_returns_true(monkeypatch):
     execute_module = load_execute_module()
     captured: dict[str, object] = {}
 
-    def fake_stream(**kwargs):
-        captured.update(kwargs)
-        return {
-            "ok": True,
-            "status_code": "SUCCESS",
-            "message": "ok",
-            "http_status": 200,
-        }
+    def fake_stream(*, url, bucket, key, headers, connect_timeout_seconds=10.0, read_timeout_seconds=300.0):
+        captured.update(
+            {
+                "url": url,
+                "bucket": bucket,
+                "key": key,
+                "headers": headers,
+                "connect_timeout_seconds": connect_timeout_seconds,
+                "read_timeout_seconds": read_timeout_seconds,
+            },
+        )
 
-    monkeypatch.setattr(
-        execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream),
-    )
+    monkeypatch.setattr(execute_module, "stream_to_s3", fake_stream)
     pipeline = execute_module.EPCPipeline(
         execute_module.EPCConfig(
             bucket="quibbler-house-data-lake",
@@ -51,26 +51,18 @@ def test_stream_to_s3_calls_airflow_helper_and_returns_true(monkeypatch):
     assert success is True
     assert captured["url"] == "https://epc.opendatacommunities.org/api/v1/files/domestic-2025.zip"
     assert captured["bucket"] == "quibbler-house-data-lake"
-    assert captured["s3_key"] == "raw/epc/2025/domestic-2025.zip"
+    assert captured["key"] == "raw/epc/2025/domestic-2025.zip"
     assert captured["headers"]["Authorization"] == "Basic token-value"
     assert captured["headers"]["User-Agent"] == "ua/1.0"
-    assert captured["raise_on_error"] is False
 
 
-def test_stream_to_s3_returns_false_on_not_found_without_error_log(monkeypatch, caplog):
+def test_stream_to_s3_returns_false_on_http_error(monkeypatch, caplog):
     execute_module = load_execute_module()
 
     def fake_stream(**kwargs):
-        return {
-            "ok": False,
-            "status_code": "HTTP_NOT_FOUND",
-            "message": "missing",
-            "http_status": 404,
-        }
+        raise execute_module.requests.HTTPError("404 Not Found")
 
-    monkeypatch.setattr(
-        execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream),
-    )
+    monkeypatch.setattr(execute_module, "stream_to_s3", fake_stream)
     caplog.set_level(logging.INFO, logger=execute_module.logger.name)
     pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))
 
@@ -78,20 +70,13 @@ def test_stream_to_s3_returns_false_on_not_found_without_error_log(monkeypatch, 
     assert not [rec for rec in caplog.records if rec.levelno >= logging.ERROR]
 
 
-def test_stream_to_s3_other_failures_are_info_only(monkeypatch, caplog):
+def test_stream_to_s3_s3_failures_are_info_only(monkeypatch, caplog):
     execute_module = load_execute_module()
 
     def fake_stream(**kwargs):
-        return {
-            "ok": False,
-            "status_code": "S3_UPLOAD_FAILED",
-            "message": "upload failed",
-            "http_status": 200,
-        }
+        raise execute_module.BotoCoreError()
 
-    monkeypatch.setattr(
-        execute_module, "stream_url_to_s3", types.SimpleNamespace(function=fake_stream),
-    )
+    monkeypatch.setattr(execute_module, "stream_to_s3", fake_stream)
     caplog.set_level(logging.INFO, logger=execute_module.logger.name)
     pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))
 

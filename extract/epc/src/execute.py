@@ -2,11 +2,11 @@ import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
-
 import fire
+import requests
+from botocore.exceptions import BotoCoreError, ClientError
 
-from include.airflow_utils import stream_url_to_s3
+from extract.utils import stream_to_s3
 from include.logging_config import configure_logging
 
 DEFAULT_S3_BUCKET = "quibbler-house-data-lake"
@@ -32,72 +32,66 @@ class EPCPipeline:
                 "EPC auth token is required. Set EPC_AUTH_TOKEN or pass EPCConfig(auth_token=...).",
             )
 
-    @staticmethod
-    def _stream_callable():
-        # stream_url_to_s3 is an Airflow task decorator; call underlying function in CLI context.
-        return getattr(stream_url_to_s3, "function", stream_url_to_s3)
-
     def _request_headers(self) -> dict[str, str]:
         return {
             "Authorization": f"Basic {self.config.auth_token}",
             "User-Agent": self.config.user_agent,
         }
 
-    def _stream_result(self, identifier: str) -> tuple[str, str, dict[str, Any]]:
+    def _stream_target(self, identifier: str) -> tuple[str, str, str]:
         file_name = f"domestic-{identifier}.zip"
         url = f"{self.config.base_url}/{file_name}"
         year_folder = identifier.split("-")[0]
         s3_key = f"raw/epc/{year_folder}/{file_name}"
-
-        logger.info("source=%s action=%s file_name=%s", "epc", "process_start", file_name)
-        result = self._stream_callable()(
-            url=url,
-            bucket=self.config.bucket,
-            s3_key=s3_key,
-            headers=self._request_headers(),
-            raise_on_error=False,
-        )
-        return file_name, s3_key, result
+        return file_name, url, s3_key
 
     def _stream_to_s3(self, identifier: str) -> bool:
         """Stream a specific EPC zip file to S3 and return success/failure."""
-        file_name, s3_key, result = self._stream_result(identifier)
-        if result.get("ok"):
-            logger.info(
-                "source=%s action=%s file_name=%s s3_key=%s",
-                "epc",
-                "upload_success",
-                file_name,
-                s3_key,
+        file_name, url, s3_key = self._stream_target(identifier)
+        logger.info("source=%s action=%s file_name=%s", "epc", "process_start", file_name)
+        try:
+            stream_to_s3(
+                url=url,
+                bucket=self.config.bucket,
+                key=s3_key,
+                headers=self._request_headers(),
             )
-            return True
-
-        status_code = result.get("status_code")
-        message = result.get("message")
-        http_status = result.get("http_status")
-
-        if status_code == "HTTP_NOT_FOUND":
+        except requests.HTTPError as exc:
             logger.info(
-                "source=%s action=%s file_name=%s status_code=%s message=%s",
+                "source=%s action=%s file_name=%s error=%s",
                 "epc",
-                "source_not_found",
+                "source_request_failed",
                 file_name,
-                status_code,
-                message,
+                str(exc),
+            )
+            return False
+        except (BotoCoreError, ClientError) as exc:
+            logger.info(
+                "source=%s action=%s file_name=%s error=%s",
+                "epc",
+                "s3_upload_failed",
+                file_name,
+                str(exc),
+            )
+            return False
+        except Exception as exc:
+            logger.info(
+                "source=%s action=%s file_name=%s error=%s",
+                "epc",
+                "unexpected_error",
+                file_name,
+                str(exc),
             )
             return False
 
-        # Error details are already logged centrally in include.airflow_utils.stream_url_to_s3.
         logger.info(
-            "source=%s action=%s file_name=%s status_code=%s http_status=%s message=%s",
+            "source=%s action=%s file_name=%s s3_key=%s",
             "epc",
-            "source_request_failed",
+            "upload_success",
             file_name,
-            status_code,
-            http_status,
-            message,
+            s3_key,
         )
-        return False
+        return True
 
     def bulk(self, start_year: int = 2008, end_year: int = 2025) -> None:
         """Download yearly history files from `start_year` to `end_year` (inclusive)."""
