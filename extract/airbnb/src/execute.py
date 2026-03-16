@@ -20,6 +20,31 @@ LISTINGS_URL_PATTERN = re.compile(
 )
 logger = logging.getLogger(__name__)
 
+class ListingsNotFoundError(ValueError):
+    """Raised when no matching listings dataset URL is found on the market page."""
+
+    def __init__(self,country_slug: str, region_slug: str, market_slug: str, page_url: str)->None:
+        """Initialize the error with market slugs and the source URL.
+
+        Parameters
+        ----------
+        country_slug : str
+            Country path segment expected in the dataset URL.
+        region_slug : str
+            Region path segment expected in the dataset URL.
+        market_slug : str
+            Market path segment expected in the dataset URL.
+        page_url : str
+            The InsideAirbnb page URL where the search was performed.
+
+        Returns
+        -------
+        None
+
+        """
+        self.message= f"No listings dataset URL found for {country_slug}/{region_slug}/{market_slug} at {page_url}"
+        super().__init__(self.message)
+
 
 def _s3_client() -> boto3.client:
     """Create an S3 client using environment-based AWS credentials.
@@ -67,7 +92,7 @@ def resolve_latest_listings_url(
     ------
     requests.HTTPError
         If the page request fails.
-    ValueError
+    ListingsNotFoundError
         If no matching listings URL is found.
 
     """
@@ -88,8 +113,11 @@ def resolve_latest_listings_url(
     ]
 
     if not matches:
-        raise ValueError(
-            f"No listings dataset URL found for {country_slug}/{region_slug}/{market_slug} at {page_url}",
+        raise ListingsNotFoundError(
+            country_slug=country_slug,
+            region_slug=region_slug,
+            market_slug=market_slug,
+            page_url=page_url,
         )
 
     latest = max(matches, key=lambda item: item["snapshot_date"])
