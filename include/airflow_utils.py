@@ -6,7 +6,7 @@ This module centralizes DAG defaults, KubernetesPodOperator defaults, Slack fail
 import logging
 from datetime import timedelta
 from typing import Any
-
+import time
 import boto3
 import requests
 from airflow.providers.slack.notifications.slack import send_slack_notification
@@ -22,164 +22,80 @@ HTTP_REPO = "https://github.com/strategydata/houseuk-astro.git"
 GIT_BRANCH = "main"
 
 
-class StreamUrlToS3Error(RuntimeError):
-    """Raised when stream_url_to_s3 fails and raise_on_error is enabled."""
-
-
-@task
-def stream_url_to_s3(
+def make_request(
+    request_type: str,
     url: str,
-    bucket: str,
-    s3_key: str,
-    headers: dict[str, str] | None = None,
-    connect_timeout_seconds: float = 10.0,
-    read_timeout_seconds: float = 300.0,
-    raise_on_error: bool = True,
-) -> dict[str, Any]:
-    """Stream a URL response body directly into S3 with structured error results.
+    current_retry_count: int = 0,
+    max_retry_count: int = 3,
+    **kwargs: Any
+)-> requests.Response:
+    """Generic function to make an HTTP GET and POST request with error handling."""
 
-    Return payload always includes:
-    - ``status_code``: short machine-readable code.
-    - ``ok``: boolean success flag.
-    - ``message``: human-readable summary.
+    def get_backoff_time(wait_time, additional_backoff, retry_count):
+        backoff_time = wait_time + (additional_backoff * (retry_count + 1))
+        return backoff_time
 
-    By default this task raises on errors so Airflow retries/failure callbacks still work.
-    """
+    additional_backoff = 20
 
-    def _build_error_result(
-        status_code: str,
-        message: str,
-        http_status: int | None = None,
-    ) -> dict[str, Any]:
-        result = {
-            "ok": False,
-            "status_code": status_code,
-            "message": message,
-            "http_status": http_status,
-        }
-        if raise_on_error:
-            raise StreamUrlToS3Error(f"{status_code}: {message}")
-        return result
-
-    if not url or not bucket or not s3_key:
-        message = "Invalid input: url, bucket and s3_key are required."
-        logger.error(
-            "stream_url_to_s3 failed: status_code=%s url=%s bucket=%s s3_key=%s reason=%s",
-            "INVALID_INPUT",
-            url,
-            bucket,
-            s3_key,
-            message,
-        )
-        return _build_error_result("INVALID_INPUT", message)
-
-    request_headers = headers or {}
-    s3 = boto3.client("s3")
-    timeout = (connect_timeout_seconds, read_timeout_seconds)
-
+    if current_retry_count >= max_retry_count:
+        raise requests.exceptions.HTTPError(f"Manually raising Client Error: \
+            Too many retries when calling the {url}.")
     try:
-        with requests.get(url, stream=True, headers=request_headers, timeout=timeout) as response:
-            source_http_status = response.status_code
-            try:
-                response.raise_for_status()
-            except requests.HTTPError:
-                http_status = response.status_code
-                if http_status == 404:
-                    status_code = "HTTP_NOT_FOUND"
-                    message = f"Source URL not found (404): {url}"
-                elif http_status == 401:
-                    status_code = "HTTP_UNAUTHORIZED"
-                    message = "Unauthorized (401): check authentication headers/token."
-                elif http_status == 403:
-                    status_code = "HTTP_FORBIDDEN"
-                    message = "Forbidden (403): credentials do not have permission."
-                else:
-                    status_code = "HTTP_ERROR"
-                    message = f"HTTP error {http_status} while requesting source URL."
+        if request_type == "GET":
+            response = requests.get(url, **kwargs)
+        elif request_type == "POST":
+            response = requests.post(url, **kwargs)
+        else:
+            raise ValueError("Invalid request type")
 
-                logger.error(
-                    "stream_url_to_s3 failed: status_code=%s http_status=%s url=%s bucket=%s s3_key=%s",
-                    status_code,
-                    http_status,
-                    url,
-                    bucket,
-                    s3_key,
-                )
-                return _build_error_result(status_code, message, http_status=http_status)
+    # error before reponse was returned
+    except requests.exceptions.Timeout:
+        backoff_time = get_backoff_time(
+            kwargs.get("timeout", additional_backoff),
+            additional_backoff,
+            current_retry_count,
+        )
+        logging.info(
+            f"For this request, increasing request timeout time to: {backoff_time}"
+        )
+        # add some buffer to sleep
+        kwargs["timeout"] = backoff_time
+        # Make the request again
+        return make_request(
+            request_type=request_type,
+            url=url,
+            current_retry_count=current_retry_count + 1,
+            max_retry_count=max_retry_count,
+            **kwargs,
+        )
 
-            try:
-                s3.upload_fileobj(response.raw, bucket, s3_key)
-            except (ClientError, BotoCoreError) as exc:
-                message = "S3 upload failed while streaming content."
-                logger.exception(
-                    "stream_url_to_s3 failed: status_code=%s url=%s bucket=%s s3_key=%s reason=%s",
-                    "S3_UPLOAD_FAILED",
-                    url,
-                    bucket,
-                    s3_key,
-                    exc,
-                )
-                return _build_error_result(
-                    "S3_UPLOAD_FAILED",
-                    message,
-                    http_status=response.status_code,
-                )
-
-    except requests.Timeout as exc:
-        message = "Source request timed out."
-        logger.exception(
-            "stream_url_to_s3 failed: status_code=%s url=%s bucket=%s s3_key=%s reason=%s",
-            "REQUEST_TIMEOUT",
-            url,
-            bucket,
-            s3_key,
-            exc,
-        )
-        return _build_error_result("REQUEST_TIMEOUT", message)
-    except requests.ConnectionError as exc:
-        message = "Network connection failed while reaching source URL."
-        logger.exception(
-            "stream_url_to_s3 failed: status_code=%s url=%s bucket=%s s3_key=%s reason=%s",
-            "CONNECTION_ERROR",
-            url,
-            bucket,
-            s3_key,
-            exc,
-        )
-        return _build_error_result("CONNECTION_ERROR", message)
-    except requests.RequestException as exc:
-        message = "Request failed due to an unexpected HTTP client error."
-        logger.exception(
-            "stream_url_to_s3 failed: status_code=%s url=%s bucket=%s s3_key=%s reason=%s",
-            "REQUEST_ERROR",
-            url,
-            bucket,
-            s3_key,
-            exc,
-        )
-        return _build_error_result("REQUEST_ERROR", message)
-    except StreamUrlToS3Error:
+    # response was returned, check for error status
+    try:
+        response.raise_for_status()
+    # error after reponse was returned
+    except requests.exceptions.RequestException:
+        # if too many requests, calculate time to wait
+        if response.status_code == 429:
+            backoff_time = get_backoff_time(
+                # if no retry-after exists, wait default time
+                int(response.headers.get("Retry-After", additional_backoff)),
+                additional_backoff,
+                current_retry_count,
+            )
+            logging.info(f"Too many requests... Sleeping for {backoff_time} seconds")
+            time.sleep(backoff_time)
+            # Make the request again
+            return make_request(
+                request_type=request_type,
+                url=url,
+                current_retry_count=current_retry_count + 1,
+                max_retry_count=max_retry_count,
+                **kwargs,
+            )
+        logging.error(f"request exception for url {url}, see below")
         raise
-    except Exception as exc:
-        message = "Unexpected error while streaming URL to S3."
-        logger.exception(
-            "stream_url_to_s3 failed: status_code=%s url=%s bucket=%s s3_key=%s reason=%s",
-            "UNEXPECTED_ERROR",
-            url,
-            bucket,
-            s3_key,
-            exc,
-        )
-        return _build_error_result("UNEXPECTED_ERROR", message)
 
-    logger.info("Uploaded data from %s to s3://%s/%s", url, bucket, s3_key)
-    return {
-        "ok": True,
-        "status_code": "SUCCESS",
-        "message": "Upload completed successfully.",
-        "http_status": source_http_status,
-    }
-
+    return response
 
 def slack_failed_task(context):
     """slack_failed_task Function to be used as a callable for no_failure_callback
