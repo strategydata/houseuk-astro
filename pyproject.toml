@@ -16,6 +16,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "aws-lambda-typing>=2.20.0",
     "moto>=5.1.22",
     "mypy==1.18.2",
     "pre-commit==4.3.0",
@@ -47,9 +48,10 @@ extend-exclude = [".astro", "extract/crime/next/target"]
 select = ["ALL"]
 
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "tests/**/*.py" = ["T201"]
 "examples/**/*.py" = ["T201"]
+"__init__.py" =["D104"]
 
 [tool.mypy]
 python_version = "3.13"

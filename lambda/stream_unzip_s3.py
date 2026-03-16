@@ -5,9 +5,11 @@ import mimetypes
 import os
 import zipfile
 from datetime import datetime
-
+from typing import Any
 import boto3
 from aws_lambda_powertools import Logger
+from aws_lambda_typing.events import S3Event
+from aws_lambda_typing.context import Context
 
 logger = Logger()
 s3 = boto3.client("s3")
@@ -24,7 +26,7 @@ def build_archive_key(key: str) -> str:
 
 
 @logger.inject_lambda_context
-def lambda_handler(event, context):
+def lambda_handler(event: S3Event, context: Context) -> dict[str, Any]:
     # 1. Get bucket and key from the event
     bucket = event["Records"][0]["s3"]["bucket"]["name"]
     old_key = event["Records"][0]["s3"]["object"]["key"]
@@ -72,7 +74,9 @@ def lambda_handler(event, context):
             extra={"archive_key": archive_key, "old_key": old_key, "bucket": bucket},
         )
         s3.copy_object(
-            Bucket=bucket, CopySource={"Bucket": bucket, "Key": old_key}, Key=archive_key,
+            Bucket=bucket,
+            CopySource={"Bucket": bucket, "Key": old_key},
+            Key=archive_key,
         )
         s3.delete_object(Bucket=bucket, Key=old_key)
         logger.info(
@@ -82,6 +86,7 @@ def lambda_handler(event, context):
         return {"status": "success", "archive_key": archive_key}
     except Exception as e:
         logger.error(
-            "Error processing file", extra={"error": str(e), "bucket": bucket, "key": old_key},
+            "Error processing file",
+            extra={"error": str(e), "bucket": bucket, "key": old_key},
         )
         return {"status": "error", "message": str(e)}
