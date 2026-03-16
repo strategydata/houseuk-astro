@@ -21,7 +21,7 @@ LISTINGS_URL_PATTERN = re.compile(
 logger = logging.getLogger(__name__)
 
 
-def _s3_client():
+def _s3_client() -> boto3.client:
     """Create an S3 client using environment-based AWS credentials.
 
     Returns
@@ -74,19 +74,18 @@ def resolve_latest_listings_url(
     response = requests.get(page_url, timeout=30)
     response.raise_for_status()
 
-    matches = []
-    for match in LISTINGS_URL_PATTERN.finditer(response.text):
+    matches = [
+        {
+            "url": match.group(0),
+            "snapshot_date": match.group("snapshot_date"),
+        }
+        for match in LISTINGS_URL_PATTERN.finditer(response.text)
         if (
             match.group("country") == country_slug
             and match.group("region") == region_slug
             and match.group("market") == market_slug
-        ):
-            matches.append(
-                {
-                    "url": match.group(0),
-                    "snapshot_date": match.group("snapshot_date"),
-                },
-            )
+        )
+    ]
 
     if not matches:
         raise ValueError(

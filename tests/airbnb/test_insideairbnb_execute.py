@@ -53,10 +53,7 @@ def test_selects_latest_snapshot_for_market(execute_module):
 
     mock_get.assert_called_once_with("https://insideairbnb.com/bristol/", timeout=30)
     response.raise_for_status.assert_called_once()
-    assert (
-        url
-        == "https://data.insideairbnb.com/united-kingdom/england/bristol/2025-09-26/data/listings.csv.gz"
-    )
+    assert url == "https://data.insideairbnb.com/united-kingdom/england/bristol/2025-09-26/data/listings.csv.gz"
     assert snapshot_date == "2025-09-26"
 
 
