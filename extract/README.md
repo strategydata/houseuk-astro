@@ -5,8 +5,9 @@ This folder contains all raw ingestion jobs that pull external datasets into S3.
 ## Shared Utility
 
 - Script: `extract/utils.py`
-- Function: `stream_to_s3(url, bucket, key)`
+- Function: `stream_to_s3(url, bucket, key, headers=None, connect_timeout_seconds=10.0, read_timeout_seconds=300.0)`
 - Behavior: streams a remote file directly to S3 (`upload_fileobj`) to avoid loading full files into memory.
+  Supports optional request headers and timeouts for authenticated sources.
 
 ## Extractors
 

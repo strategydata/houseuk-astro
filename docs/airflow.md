@@ -20,6 +20,9 @@ Shared DAG defaults and Kubernetes execution settings are centralized in:
 The container image used by extractor DAGs is pinned to a versioned tag
 (`ghcr.io/strategydata/data-infrastructure:2026.03.0`) in `include/airflow_utils.py`.
 
+For extractors that only need a direct URL download, the CLI helpers use
+`extract.utils.stream_to_s3`.
+
 ## Secrets
 
 Kubernetes pod environment secrets are declared in `dags/kube_secrets.py` and

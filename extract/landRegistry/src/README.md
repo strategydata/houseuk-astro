@@ -12,7 +12,7 @@ Ingests Land Registry Price Paid data for England and Wales into S3.
 ## Entrypoint
 
 - Script: `extract/landRegistry/src/execute.py`
-- CLI function: `stream_to_s3(url, bucket, key)`
+- CLI function: `stream_to_s3(url, bucket, key, headers=None, connect_timeout_seconds=10.0, read_timeout_seconds=300.0)`
 
 ## Required CLI Args
 
