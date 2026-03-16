@@ -14,7 +14,6 @@ All notable changes to this project are documented in this file.
 - Added EPC Airflow DAG at `dags/extract/epc_extract.py` to schedule incremental EPC ingestion in Kubernetes pods.
 - Added EPC secret mapping `EPC_AUTH_TOKEN` in `dags/kube_secrets.py` for KubernetesPodOperator env injection.
 - Added test coverage:
-  - `tests/include/test_airflow_utils.py` for `stream_url_to_s3` status/error behavior.
   - `tests/epc/test_execute.py` for EPC pipeline integration with shared stream helper.
   - `tests/dags/test_kube_secrets.py` for EPC secret binding validation.
 
@@ -28,13 +27,14 @@ All notable changes to this project are documented in this file.
   - `extract/epc/src/execute.py`
 - CI now runs Ruff through pre-commit hooks (`ruff-check`, `ruff-format`) using `astral-sh/ruff-pre-commit`.
 - Ruff policy now enables `T201` (print detection) in `pyproject.toml` with per-file ignore for `tests/**` and `examples/**`.
-- Refactored `include.airflow_utils.stream_url_to_s3` to return structured status payloads and clear error categories while preserving Airflow failure semantics by default.
-- Refactored `extract/epc/src/execute.py` to use `stream_url_to_s3` instead of ad-hoc HTTP/S3 logic.
+- Refactored `extract/epc/src/execute.py` to use `extract.utils.stream_to_s3` with simple error handling.
 - Removed EPC auth token hardcoding fallback; EPC token is now required from env (`EPC_AUTH_TOKEN`) or explicit config.
 
 ### Documentation
 - Updated docs for CI/CD, local development, script catalog, and extract layer coverage.
-- Updated EPC extractor README to match implemented CLI behavior.
-- Updated Airflow docs and script catalog to include EPC DAG and secret-injection model.
-- Documented Astro CLI + uv + pre-commit workflow, DAG validation commands, and requirements.txt sync steps.
-- Refreshed docs for CI/CD, architecture, lambda routing, and extract layer status to match current code.
+- Updated EPC extractor README and helper descriptions to match the simplified streaming helper.
+- Updated Airflow docs and script catalog to reflect helper usage.
+
+### Changed
+- `extract.utils.stream_to_s3` now supports optional headers and timeouts for authenticated sources.
+- EPC extractor now uses `extract.utils.stream_to_s3` with simple error handling.
