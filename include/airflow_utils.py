@@ -1,17 +1,14 @@
 """Shared Airflow constants and helper utilities.
 
-This module centralizes DAG defaults, KubernetesPodOperator defaults, Slack failure notification wiring, and repository bootstrap commands used by DAG tasks.
+This module centralizes DAG defaults,
+KubernetesPodOperator defaults, Slack failure notification wiring,
+and repository bootstrap commands used by DAG tasks.
 """
 
 import logging
 from datetime import timedelta
-from typing import Any
-import time
-import boto3
-import requests
+
 from airflow.providers.slack.notifications.slack import send_slack_notification
-from airflow.sdk import task
-from botocore.exceptions import BotoCoreError, ClientError
 from kubernetes.client import models as k8s
 
 logger = logging.getLogger(__name__)
@@ -22,86 +19,12 @@ HTTP_REPO = "https://github.com/strategydata/houseuk-astro.git"
 GIT_BRANCH = "main"
 
 
-def make_request(
-    request_type: str,
-    url: str,
-    current_retry_count: int = 0,
-    max_retry_count: int = 3,
-    **kwargs: Any
-)-> requests.Response:
-    """Generic function to make an HTTP GET and POST request with error handling."""
 
-    def get_backoff_time(wait_time, additional_backoff, retry_count):
-        backoff_time = wait_time + (additional_backoff * (retry_count + 1))
-        return backoff_time
-
-    additional_backoff = 20
-
-    if current_retry_count >= max_retry_count:
-        raise requests.exceptions.HTTPError(f"Manually raising Client Error: \
-            Too many retries when calling the {url}.")
-    try:
-        if request_type == "GET":
-            response = requests.get(url, **kwargs)
-        elif request_type == "POST":
-            response = requests.post(url, **kwargs)
-        else:
-            raise ValueError("Invalid request type")
-
-    # error before reponse was returned
-    except requests.exceptions.Timeout:
-        backoff_time = get_backoff_time(
-            kwargs.get("timeout", additional_backoff),
-            additional_backoff,
-            current_retry_count,
-        )
-        logging.info(
-            f"For this request, increasing request timeout time to: {backoff_time}"
-        )
-        # add some buffer to sleep
-        kwargs["timeout"] = backoff_time
-        # Make the request again
-        return make_request(
-            request_type=request_type,
-            url=url,
-            current_retry_count=current_retry_count + 1,
-            max_retry_count=max_retry_count,
-            **kwargs,
-        )
-
-    # response was returned, check for error status
-    try:
-        response.raise_for_status()
-    # error after reponse was returned
-    except requests.exceptions.RequestException:
-        # if too many requests, calculate time to wait
-        if response.status_code == 429:
-            backoff_time = get_backoff_time(
-                # if no retry-after exists, wait default time
-                int(response.headers.get("Retry-After", additional_backoff)),
-                additional_backoff,
-                current_retry_count,
-            )
-            logging.info(f"Too many requests... Sleeping for {backoff_time} seconds")
-            time.sleep(backoff_time)
-            # Make the request again
-            return make_request(
-                request_type=request_type,
-                url=url,
-                current_retry_count=current_retry_count + 1,
-                max_retry_count=max_retry_count,
-                **kwargs,
-            )
-        logging.error(f"request exception for url {url}, see below")
-        raise
-
-    return response
-
-def slack_failed_task(context):
-    """slack_failed_task Function to be used as a callable for no_failure_callback
+def slack_failed_task(context: dict[str, object]) -> None:
+    """Handle Slack failure notifications for DAG callbacks.
 
     Args:
-        context (_type_): _description_
+        context (_type_): Airflow task context for the failure.
 
     """
     blocks_val = [

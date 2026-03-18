@@ -108,7 +108,7 @@ Extractor documentation lives under `extract/`:
 - [InsideAirbnb Extract](extract/airbnb/README.md)
 - [UK Crime Extract (Current Python)](extract/crime/current/README.md)
 - [UK Crime Extract (Next Rust Prototype)](extract/crime/next/src/README)
-- [Land Registry Extract](extract/landRegistry/src/README.md)
+- [Land Registry Extract](extract/landregistry/src/README.md)
 - [EPC Extract](extract/epc/README.md)
 
 # Resources

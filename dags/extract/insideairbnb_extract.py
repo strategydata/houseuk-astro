@@ -52,11 +52,12 @@ INSIDE_AIRBNB_MARKETS = [
 @dag(
     dag_id="insideairbnb_extract",
     schedule="0 5 1 * *",
-    start_date=datetime(2026, 1, 1),
+    start_date=datetime(2026, 1, 1,tzinfo=datetime.UTC),
     catchup=False,
     default_args=amber_dags_defaults,
 )
-def insideairbnb_extract():
+def insideairbnb_extract() -> None:
+    """Build the InsideAirbnb extract DAG."""
     previous_task = None
 
     for market in INSIDE_AIRBNB_MARKETS:

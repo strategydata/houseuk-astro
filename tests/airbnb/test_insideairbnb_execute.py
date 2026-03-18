@@ -2,6 +2,7 @@ import importlib.util
 import sys
 import types
 from pathlib import Path
+from types import ModuleType
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -14,7 +15,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 
-def load_execute_module():
+def load_execute_module() -> ModuleType:
     fake_boto3 = types.SimpleNamespace(client=MagicMock(name="boto3_client"))
     fake_fire = types.SimpleNamespace(Fire=MagicMock(name="Fire"))
 
@@ -28,18 +29,14 @@ def load_execute_module():
 
 
 @pytest.fixture
-def execute_module():
+def execute_module() -> ModuleType:
     return load_execute_module()
 
 
-def test_selects_latest_snapshot_for_market(execute_module):
-    html = "\n".join(
-        [
-            "https://data.insideairbnb.com/united-kingdom/england/bristol/2025-03-19/data/listings.csv.gz",
-            "https://data.insideairbnb.com/united-kingdom/england/bristol/2025-09-26/data/listings.csv.gz",
-            "https://data.insideairbnb.com/united-kingdom/england/london/2025-09-14/data/listings.csv.gz",
-        ],
-    )
+def test_selects_latest_snapshot_for_market(execute_module: ModuleType) -> None:
+    html = """https://data.insideairbnb.com/united-kingdom/england/bristol/2025-03-19/data/listings.csv.gz
+https://data.insideairbnb.com/united-kingdom/england/bristol/2025-09-26/data/listings.csv.gz
+https://data.insideairbnb.com/united-kingdom/england/london/2025-09-14/data/listings.csv.gz"""
     response = MagicMock()
     response.text = html
 
@@ -57,12 +54,12 @@ def test_selects_latest_snapshot_for_market(execute_module):
     assert snapshot_date == "2025-09-26"
 
 
-def test_raises_when_no_matching_dataset_link_found(execute_module):
+def test_raises_when_no_matching_dataset_link_found(execute_module: ModuleType) -> None:
     response = MagicMock()
     response.text = "https://example.com/no-listings-link"
 
-    with patch.object(execute_module.requests, "get", return_value=response):
-        with pytest.raises(ValueError, match="No listings dataset URL found"):
+    with patch.object(execute_module.requests, "get", return_value=response), \
+         pytest.raises(ValueError, match="No listings dataset URL found"):
             execute_module.resolve_latest_listings_url(
                 page_url="https://insideairbnb.com/bristol/",
                 country_slug="united-kingdom",
@@ -71,7 +68,7 @@ def test_raises_when_no_matching_dataset_link_found(execute_module):
             )
 
 
-def test_uploads_dated_file_and_refreshes_latest_pointer(execute_module):
+def test_uploads_dated_file_and_refreshes_latest_pointer(execute_module: ModuleType) -> None:
     resolved_url = "https://data.insideairbnb.com/united-kingdom/england/london/2025-09-14/data/listings.csv.gz"
     resolved_date = "2025-09-14"
     s3 = MagicMock()

@@ -21,11 +21,12 @@ ANNUAL_TARGET_YEAR_TEMPLATE = "{{ data_interval_start.year }}"
 @dag(
     dag_id="epc_annual_extract",
     schedule="0 9 1 1 *",
-    start_date=datetime(2026, 1, 1),
+    start_date=datetime(2026, 1, 1,tzinfo=datetime.UTC),
     catchup=False,
     default_args=amber_dags_defaults,
 )
-def epc_annual_extract():
+def epc_annual_extract() -> None:
+    """Build the annual EPC extract DAG."""
     epc_annual_extract_cmd = f"""
     {clone_and_setup_repo_cmd} &&
     python extract/epc/src/execute.py bulk \

@@ -23,7 +23,7 @@ All notable changes to this project are documented in this file.
 - Non-Airflow entrypoints now call `configure_logging()`:
   - `extract/airbnb/src/execute.py`
   - `extract/crime/current/execute.py`
-  - `extract/landRegistry/src/execute.py`
+  - `extract/landregistry/src/execute.py`
   - `extract/epc/src/execute.py`
 - CI now runs Ruff through pre-commit hooks (`ruff-check`, `ruff-format`) using `astral-sh/ruff-pre-commit`.
 - Ruff policy now enables `T201` (print detection) in `pyproject.toml` with per-file ignore for `tests/**` and `examples/**`.

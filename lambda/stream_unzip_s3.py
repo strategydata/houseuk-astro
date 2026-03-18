@@ -1,15 +1,17 @@
-"""Lambda handler that unzips incoming S3 `.zip` objects, uploads extracted files, and archives the original zip object."""
-
+"""Lambda handler that unzips incoming S3 `.zip` objects,
+uploads extracted files, and archives the original zip object.
+"""
 import io
 import mimetypes
-import os
 import zipfile
 from datetime import datetime
+from pathlib import Path
 from typing import Any
+
 import boto3
 from aws_lambda_powertools import Logger
-from aws_lambda_typing.events import S3Event
 from aws_lambda_typing.context import Context
+from aws_lambda_typing.events import S3Event
 
 logger = Logger()
 s3 = boto3.client("s3")
@@ -17,12 +19,12 @@ ARCHIVE_PREFIX = "archive/"
 
 
 def build_archive_key(key: str) -> str:
-    today = datetime.now().strftime("%Y/%m/%d")
-    base_name = os.path.basename(key)
-    name, ext = os.path.splitext(base_name)
-    unique_name = f"{name}_{datetime.now().strftime('%H%M%S%f')}{ext}"
-    archive_key = f"{ARCHIVE_PREFIX}{today}/{unique_name}"
-    return archive_key
+    today = datetime.now(tz=datetime.UTC).strftime("%Y/%m/%d")
+    base_name = Path(key).name
+    path=Path(base_name)
+    name, ext = path.parent /path.stem, path.suffix
+    unique_name = f"{name}_{datetime.now(tz=datetime.UTC).strftime('%H%M%S%f')}{ext}"
+    return f"{ARCHIVE_PREFIX}{today}/{unique_name}"
 
 
 @logger.inject_lambda_context
@@ -37,7 +39,7 @@ def lambda_handler(event: S3Event, context: Context) -> dict[str, Any]:
     if old_key.startswith(ARCHIVE_PREFIX):
         return {"status": "skipped", "reason": "archiving"}
 
-    target_prefix = os.path.dirname(old_key)
+    target_prefix = Path(old_key).parent
     if target_prefix:
         target_prefix += "/"
 
@@ -51,10 +53,6 @@ def lambda_handler(event: S3Event, context: Context) -> dict[str, Any]:
                 # Skip directories
                 if key.endswith("/"):
                     continue
-
-                # if not key.lower().endswith(('.csv', '.json')):
-                #     print(f"Skipping {key} as it is not a CSV or JSON file.")
-                #     continue
 
                 new_key = f"{target_prefix}{key}"
 
@@ -79,14 +77,15 @@ def lambda_handler(event: S3Event, context: Context) -> dict[str, Any]:
             Key=archive_key,
         )
         s3.delete_object(Bucket=bucket, Key=old_key)
+    except Exception as e:
+        logger.exception(
+            "Error processing file",
+            extra={"error": str(e), "bucket": bucket, "key": old_key},
+        )
+        return {"status": "error", "message": str(e)}
+    else:
         logger.info(
             "Deleted old zip file",
             extra={"archive_key": archive_key, "old_key": old_key, "bucket": bucket},
         )
         return {"status": "success", "archive_key": archive_key}
-    except Exception as e:
-        logger.error(
-            "Error processing file",
-            extra={"error": str(e), "bucket": bucket, "key": old_key},
-        )
-        return {"status": "error", "message": str(e)}

@@ -20,11 +20,12 @@ CRIME_EXECUTE_PATH = "extract/crime/current/execute.py"
 @dag(
     dag_id="crime_extract",
     schedule="0 7 1 * *",
-    start_date=datetime(2026, 1, 1),
+    start_date=datetime(2026, 1, 1,tzinfo=datetime.UTC),
     catchup=False,
     default_args=amber_dags_defaults,
 )
-def crime_extract():
+def crime_extract() -> None:
+    """Build the crime extract DAG."""
     crime_extract_cmd = f"""
     {clone_and_setup_repo_cmd} &&
     python {CRIME_EXECUTE_PATH}
