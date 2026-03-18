@@ -59,7 +59,7 @@ class JsonFormatter(logging.Formatter):
                 key: value
                 for key, value in record.__dict__.items()
                 if key not in _RESERVED_LOG_RECORD_FIELDS and not key.startswith("_")
-            }
+            },
         )
 
         return json.dumps(payload, default=str)

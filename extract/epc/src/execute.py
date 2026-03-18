@@ -48,7 +48,7 @@ class EPCPipeline:
     def _stream_target(self, identifier: str) -> tuple[str, str, str]:
         file_name = f"domestic-{identifier}.zip"
         url = f"{self.config.base_url}/{file_name}"
-        year_folder = identifier.split("-")[0]
+        year_folder = identifier.split("-", maxsplit=1)[0]
         s3_key = f"raw/epc/{year_folder}/{file_name}"
         return file_name, url, s3_key
 

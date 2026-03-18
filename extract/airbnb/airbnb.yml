@@ -14,7 +14,7 @@ markets:
   - city: manchester
     country_slug: united-kingdom
     region_slug: england
-    market_slug: greater-manchester 
+    market_slug: greater-manchester
   - city: edinburgh
     country_slug: united-kingdom
     region_slug: scotland
