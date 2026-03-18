@@ -68,7 +68,7 @@ Examples:
 
 ```bash
 LOG_LEVEL=DEBUG uv run python extract/epc/src/execute.py bulk --start_year=2024 --end_year=2025
-LOG_JSON=true uv run python extract/airbnb/src/execute.py --args.city="london" --args.country_slug="united-kingdom" --args.region_slug="england" --args.market_slug="london" --args.page_url="https://insideairbnb.com/london/" --args.bucket="<your-bucket>"
+LOG_JSON=true uv run python extract/airbnb/src/execute.py
 ```
 
 ## Run extractors manually
@@ -76,8 +76,11 @@ LOG_JSON=true uv run python extract/airbnb/src/execute.py --args.city="london" -
 InsideAirbnb:
 
 ```bash
-uv run python extract/airbnb/src/execute.py --args.city="london" --args.country_slug="united-kingdom" --args.region_slug="england" --args.market_slug="london" --args.page_url="https://insideairbnb.com/london/" --args.bucket="<your-bucket>"
+uv run python extract/airbnb/src/execute.py
 ```
+
+The InsideAirbnb script reads markets and the index URL from `extract/airbnb/airbnb.yml`
+and streams the latest listings to the default bucket configured in `extract/utils.py`.
 
 UK Crime current extractor:
 
