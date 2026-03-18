@@ -54,11 +54,13 @@ class JsonFormatter(logging.Formatter):
         if record.stack_info:
             payload["stack"] = self.formatStack(record.stack_info)
 
-        payload.update({
-            key:value
-            for key, value in record.__dict__.items()
-            if key not in _RESERVED_LOG_RECORD_FIELDS and not key.startswith("_")
-        })
+        payload.update(
+            {
+                key: value
+                for key, value in record.__dict__.items()
+                if key not in _RESERVED_LOG_RECORD_FIELDS and not key.startswith("_")
+            }
+        )
 
         return json.dumps(payload, default=str)
 

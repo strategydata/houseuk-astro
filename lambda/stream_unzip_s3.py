@@ -1,10 +1,11 @@
 """Lambda handler that unzips incoming S3 `.zip` objects,
 uploads extracted files, and archives the original zip object.
 """
+
+import datetime
 import io
 import mimetypes
 import zipfile
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -19,11 +20,11 @@ ARCHIVE_PREFIX = "archive/"
 
 
 def build_archive_key(key: str) -> str:
-    today = datetime.now(tz=datetime.UTC).strftime("%Y/%m/%d")
+    today = datetime.datetime.now(tz=datetime.UTC).strftime("%Y/%m/%d")
     base_name = Path(key).name
-    path=Path(base_name)
-    name, ext = path.parent /path.stem, path.suffix
-    unique_name = f"{name}_{datetime.now(tz=datetime.UTC).strftime('%H%M%S%f')}{ext}"
+    path = Path(base_name)
+    name, ext = path.parent / path.stem, path.suffix
+    unique_name = f"{name}_{datetime.datetime.now(tz=datetime.UTC).strftime('%H%M%S%f')}{ext}"
     return f"{ARCHIVE_PREFIX}{today}/{unique_name}"
 
 
@@ -40,9 +41,6 @@ def lambda_handler(event: S3Event, context: Context) -> dict[str, Any]:
         return {"status": "skipped", "reason": "archiving"}
 
     target_prefix = Path(old_key).parent
-    if target_prefix:
-        target_prefix += "/"
-
     # # 2. Get the object from S3
     try:
         response = s3.get_object(Bucket=bucket, Key=old_key)
@@ -54,7 +52,7 @@ def lambda_handler(event: S3Event, context: Context) -> dict[str, Any]:
                 if key.endswith("/"):
                     continue
 
-                new_key = f"{target_prefix}{key}"
+                new_key = f"{target_prefix}/{key}"
 
                 #         # 4. Stream the individual file back to S3
                 with z.open(key) as extracted_file:

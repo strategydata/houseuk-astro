@@ -11,8 +11,5 @@ repos:
     rev: v0.15.4
     hooks:
       - id: ruff-check
-        args: [extract, lambda/stream_unzip_s3.py, tests/airbnb, tests/include]
-        pass_filenames: false
+        args: [--fix]
       - id: ruff-format
-        args: [extract, lambda/stream_unzip_s3.py, tests/airbnb, tests/include]
-        pass_filenames: false
