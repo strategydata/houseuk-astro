@@ -1,8 +1,8 @@
-"""Utility DAG used to test Slack failure notifications."""
+﻿"""Utility DAG used to test Slack failure notifications."""
 
 import logging
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Never
 
 from airflow.sdk import dag, task
@@ -13,12 +13,14 @@ SLACK_WEBHOOK_CONN_ID = os.environ.get("SLACK_WEBHOOK_CONN_ID", "airflow_con_sla
 logger = logging.getLogger(__name__)
 
 
+
 @dag(
     dag_id="slack",
-    start_date=datetime(2025, 1, 5, tzinfo=datetime.UTC),
+    start_date=datetime(2025, 1, 5, tzinfo=UTC),
     schedule=None,
     catchup=False,
     default_args=amber_dags_defaults,
+
 )
 def slack_notifier_dag() -> None:
     """Build the Slack notification test DAG."""
@@ -30,7 +32,6 @@ def slack_notifier_dag() -> None:
         raise ValueError(message)
 
     failing_task()
-
 
 slack_notifier_dag()
 

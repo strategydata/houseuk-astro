@@ -20,7 +20,7 @@ CRIME_EXECUTE_PATH = "extract/crime/current/execute.py"
 @dag(
     dag_id="crime_extract",
     schedule="0 7 1 * *",
-    start_date=datetime(2026, 1, 1, tzinfo=datetime.UTC),
+    start_date=datetime(2026, 1, 1, tzinfo=UTC),
     catchup=False,
     default_args=amber_dags_defaults,
 )

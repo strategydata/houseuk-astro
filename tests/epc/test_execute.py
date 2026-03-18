@@ -26,7 +26,6 @@ def load_execute_module() -> ModuleType:
         spec.loader.exec_module(module)
     return module
 
-
 def test_bulk_calls_stream_for_each_year(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test bulk mode streams each year in the range."""
     execute_module = load_execute_module()
@@ -49,7 +48,6 @@ def test_incremental_specific_month_calls_single_identifier(monkeypatch: pytest.
     pipeline.incremental(year=2026, month=2)
 
     assert called == ["2026-02"]
-
 
 def test_pipeline_requires_auth_token() -> None:
     """Test that the pipeline enforces a non-empty auth token."""

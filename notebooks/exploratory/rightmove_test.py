@@ -14,8 +14,8 @@ s3_key = f"raw/epc/{year_folder}/{file_name}"
 
 headers = {"Authorization": f"Basic {EPC_AUTH_TOKEN}", "User-Agent": "curl/7.68.0"}
 s3 = boto3.client("s3")
-headers = {}
-with requests.get(url, stream=True, headers=headers, timeout=30) as r:
+headers={}
+with requests.get(url, stream=True, headers=headers,timeout=30) as r:
     if r.status_code == STATUS_CODE_OK:
         s3.upload_fileobj(r.raw, S3_BUCKET, s3_key)
-    logger.info("Uploaded data from %s to s3://%s/%s the code is %s", url, S3_BUCKET, s3_key, r.status_code)
+    logger.info("Uploaded data from %s to s3://%s/%s the code is %s", url, S3_BUCKET, s3_key,r.status_code)

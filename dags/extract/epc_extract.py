@@ -18,7 +18,7 @@ from include.airflow_utils import (
 @dag(
     dag_id="epc_extract",
     schedule="0 8 1 * *",
-    start_date=datetime(2026, 1, 1, tzinfo=datetime.UTC),
+    start_date=datetime(2026, 1, 1, tzinfo=UTC),
     catchup=False,
     default_args=amber_dags_defaults,
 )
