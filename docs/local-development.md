@@ -88,7 +88,7 @@ uv run python extract/crime/current/execute.py --url="https://data.police.uk/dat
 Land Registry extractor:
 
 ```bash
-uv run python extract/landRegistry/src/execute.py --url="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-complete.csv" --bucket="<your-bucket>" --key="raw/land_registry/pp-complete.csv"
+uv run python extract/landregistry/src/execute.py --url="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-complete.csv" --bucket="<your-bucket>" --key="raw/land_registry/pp-complete.csv"
 ```
 
 ## Build docs

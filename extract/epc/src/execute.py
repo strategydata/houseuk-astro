@@ -1,7 +1,10 @@
+"""Extract EPC data and stream archives to S3."""
+
 import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime
+
 import fire
 import requests
 from botocore.exceptions import BotoCoreError, ClientError
@@ -18,6 +21,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class EPCConfig:
+    """Configuration for the EPC extraction pipeline."""
+
     bucket: str = DEFAULT_S3_BUCKET
     base_url: str = DEFAULT_BASE_URL
     auth_token: str = os.getenv("EPC_AUTH_TOKEN", "")
@@ -25,12 +30,14 @@ class EPCConfig:
 
 
 class EPCPipeline:
-    def __init__(self, config: EPCConfig | None = None):
+    """Run EPC extraction workflows."""
+
+    def __init__(self, config: EPCConfig | None = None) -> None:
+        """Initialize the EPC pipeline with configuration."""
         self.config = config or EPCConfig()
         if not self.config.auth_token:
-            raise ValueError(
-                "EPC auth token is required. Set EPC_AUTH_TOKEN or pass EPCConfig(auth_token=...).",
-            )
+            message = "EPC auth token is required. Set EPC_AUTH_TOKEN or pass EPCConfig(auth_token=...)."
+            raise ValueError(message)
 
     def _request_headers(self) -> dict[str, str]:
         return {
@@ -52,9 +59,12 @@ class EPCPipeline:
         try:
             stream_to_s3(
                 url=url,
-                bucket=self.config.bucket,
                 key=s3_key,
-                headers=self._request_headers(),
+                args=
+                {
+                    "bucket": self.config.bucket,
+                    "headers": self._request_headers(),
+                },
             )
         except requests.HTTPError as exc:
             logger.info(
@@ -74,7 +84,7 @@ class EPCPipeline:
                 str(exc),
             )
             return False
-        except Exception as exc:
+        except Exception as exc: # noqa: BLE001
             logger.info(
                 "source=%s action=%s file_name=%s error=%s",
                 "epc",
@@ -101,14 +111,14 @@ class EPCPipeline:
             "bulk_start",
             start_year,
             end_year,
-            datetime.now().date().isoformat(),
+            datetime.now(tz=datetime.UTC).date().isoformat(),
         )
         for year in range(start_year, end_year + 1):
             self._stream_to_s3(str(year))
 
     def incremental(self, year: int | None = None, month: int | None = None) -> None:
         """Download monthly files for a year or a specific month."""
-        now = datetime.now()
+        now = datetime.now(tz=datetime.UTC)
         target_year = year or now.year
 
         if month:

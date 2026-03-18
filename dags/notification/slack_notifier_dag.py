@@ -3,8 +3,9 @@
 import logging
 import os
 from datetime import datetime
+from typing import Never
 
-from airflow.decorators import dag, task
+from airflow.sdk import dag, task
 
 from include.airflow_utils import amber_dags_defaults
 
@@ -13,28 +14,22 @@ logger = logging.getLogger(__name__)
 
 
 
-# def slack_successful_task(context):
-#     """slack_successful_task Function to be used as a callable for on_success_callback
-
-#     Args:
-#         context (_type_): _description_
-#     """
-#     attachment, slack_channel, task_id, task_text = slack_defaults(context, "success")
-#     airflow_http_con_id, slack_webhook = slack_webhook_conn(slack_channel)
 @dag(
     dag_id="slack",
-    start_date=datetime(2025, 1, 5),
+    start_date=datetime(2025, 1, 5,tzinfo=datetime.UTC),
     schedule=None,
     catchup=False,
     default_args=amber_dags_defaults,
 
 )
-def slack_notifier_dag():
+def slack_notifier_dag() -> None:
+    """Build the Slack notification test DAG."""
 
     @task
-    def failing_task():
+    def failing_task() -> Never:
         logger.info("This task will fail")
-        raise ValueError("Simulated failure for Slack alert test")
+        message = "Simulated failure for Slack alert test"
+        raise ValueError(message)
 
     failing_task()
 
