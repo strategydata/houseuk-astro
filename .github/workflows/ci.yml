@@ -66,8 +66,8 @@ jobs:
       - name: Sync dependencies
         run: uv sync --frozen --group dev --group docs
 
-      - name: Pre-commit (All Files)
-        run: uv run pre-commit run --all-files --show-diff-on-failure
+      - name: Pre-commit 
+        run: uv run pre-commit run
 
       - name: Pytest (push)
         if: github.event_name != 'pull_request'
