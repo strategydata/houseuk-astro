@@ -1,6 +1,6 @@
 """Airflow DAG that schedules the UK Crime extractor in a Kubernetes pod."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 from airflow.sdk import dag
@@ -20,7 +20,7 @@ CRIME_EXECUTE_PATH = "extract/crime/current/execute.py"
 @dag(
     dag_id="crime_extract",
     schedule="0 7 1 * *",
-    start_date=datetime(2026, 1, 1,tzinfo=datetime.UTC),
+    start_date=datetime(2026, 1, 1, tzinfo=datetime.UTC),
     catchup=False,
     default_args=amber_dags_defaults,
 )

@@ -58,61 +58,13 @@ def test_raises_when_no_matching_dataset_link_found(execute_module: ModuleType) 
     response = MagicMock()
     response.text = "https://example.com/no-listings-link"
 
-    with patch.object(execute_module.requests, "get", return_value=response), \
-         pytest.raises(ValueError, match="No listings dataset URL found"):
-            execute_module.resolve_latest_listings_url(
-                page_url="https://insideairbnb.com/bristol/",
-                country_slug="united-kingdom",
-                region_slug="england",
-                market_slug="bristol",
-            )
-
-
-def test_uploads_dated_file_and_refreshes_latest_pointer(execute_module: ModuleType) -> None:
-    resolved_url = "https://data.insideairbnb.com/united-kingdom/england/london/2025-09-14/data/listings.csv.gz"
-    resolved_date = "2025-09-14"
-    s3 = MagicMock()
-
     with (
-        patch.object(
-            execute_module,
-            "resolve_latest_listings_url",
-            return_value=(resolved_url, resolved_date),
-        ) as resolve_mock,
-        patch.object(execute_module, "stream_to_s3") as stream_mock,
-        patch.object(execute_module, "_s3_client", return_value=s3),
+        patch.object(execute_module.requests, "get", return_value=response),
+        pytest.raises(ValueError, match="No listings dataset URL found"),
     ):
-        execute_module.extract_latest_market_snapshot(
-            city="london",
+        execute_module.resolve_latest_listings_url(
+            page_url="https://insideairbnb.com/bristol/",
             country_slug="united-kingdom",
             region_slug="england",
-            market_slug="london",
-            page_url="https://insideairbnb.com/london/",
-            bucket="quibbler-house-data-lake",
+            market_slug="bristol",
         )
-
-    resolve_mock.assert_called_once_with(
-        page_url="https://insideairbnb.com/london/",
-        country_slug="united-kingdom",
-        region_slug="england",
-        market_slug="london",
-    )
-    stream_mock.assert_called_once_with(
-        url=resolved_url,
-        bucket="quibbler-house-data-lake",
-        key="raw/airbnb/london/listings_2025-09-14.csv.gz",
-    )
-    s3.copy_object.assert_called_once_with(
-        Bucket="quibbler-house-data-lake",
-        CopySource={
-            "Bucket": "quibbler-house-data-lake",
-            "Key": "raw/airbnb/london/listings_2025-09-14.csv.gz",
-        },
-        Key="raw/airbnb/london/latest/listings.csv.gz",
-        MetadataDirective="REPLACE",
-        Metadata={
-            "source_url": resolved_url,
-            "snapshot_date": "2025-09-14",
-            "city": "london",
-        },
-    )

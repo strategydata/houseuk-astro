@@ -1,4 +1,4 @@
-﻿"""Kubernetes scheduling helpers for DAG task pods.
+"""Kubernetes scheduling helpers for DAG task pods.
 
 Provides affinity/toleration selectors for local testing, extraction workloads, dbt workloads, and production defaults.
 """
@@ -38,7 +38,6 @@ production_tolerations = get_toleration_with_value("production")
 
 extraction_affinity = get_affinity_with_key_value("extraction", ["true"])
 extraction_tolerations = get_toleration_with_value("extraction")
-
 
 
 dbt_affinity = get_affinity_with_key_value("dbt", ["true"])

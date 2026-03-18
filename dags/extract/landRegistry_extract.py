@@ -16,8 +16,7 @@ from include.airflow_utils import (
 
 LAND_REGISTRY_BUCKET = "quibbler-house-data-lake"
 LAND_REGISTRY_MONTHLY_URL = (
-    "http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/"
-    "pp-monthly-update-new-version.csv"
+    "http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-monthly-update-new-version.csv"
 )
 LAND_REGISTRY_MONTHLY_KEY = "raw/land_registry/pp-monthly-update-new-version.csv"
 
@@ -25,7 +24,7 @@ LAND_REGISTRY_MONTHLY_KEY = "raw/land_registry/pp-monthly-update-new-version.csv
 @dag(
     dag_id="landregistry_extract",
     schedule="0 6 1 * *",
-    start_date=datetime(2026, 1, 1,tzinfo=datetime.UTC),
+    start_date=datetime(2026, 1, 1, tzinfo=datetime.UTC),
     catchup=False,
     default_args=amber_dags_defaults,
 )
