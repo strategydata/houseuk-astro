@@ -14,7 +14,6 @@ MODULE_NAME = "insideairbnb_execute_under_test"
 MODULE_FILE = REPO_ROOT / "extract" / "airbnb" / "src" / "execute.py"
 
 
-
 def load_execute_module() -> ModuleType:
     fake_boto3 = types.SimpleNamespace(client=MagicMock(name="boto3_client"))
     fake_fire = types.SimpleNamespace(Fire=MagicMock(name="Fire"))

@@ -1,14 +1,15 @@
+"""Tests for the EPC extraction Airflow DAG."""
+
+from __future__ import annotations
+
 import importlib.util
 import sys
 from pathlib import Path
 from types import ModuleType
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-MODULE_NAME = "landregistry_dag_under_test"
-MODULE_FILE = REPO_ROOT / "dags" / "extract" / "landregistry_extract.py"
-
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+MODULE_NAME = "epc_extract_dag_under_test"
+MODULE_FILE = REPO_ROOT / "dags" / "extract" / "epc_extract.py"
 
 
 def load_module() -> ModuleType:
@@ -22,9 +23,11 @@ def load_module() -> ModuleType:
     return module
 
 
-def test_landregistry_dag_stores_bucket_name() -> None:
+def test_epc_extract_dag_builds_task() -> None:
     module = load_module()
-    dag = module.landregistry_extract()
-    task = dag.get_task("landregistry_extract_task")
+    dag = module.epc_extract()
+    task = dag.get_task("epc_extract_task")
+    command = task.arguments[0]
 
-    assert not any(secret.deploy_target == "LANDREGISTRY_API_KEY" for secret in task.secrets)
+    assert "python extract/epc/src/execute.py incremental" in command
+    assert module.EPC_AUTH_TOKEN in task.secrets

@@ -53,7 +53,7 @@ uv export --format requirements-txt --no-hashes --no-dev --no-group docs --outpu
 Run checks:
 
 ```bash
-uv run pre-commit run --all-files
+uv run pre-commit run
 uv run pytest tests/airbnb tests/include
 ```
 
@@ -124,8 +124,8 @@ Extractor documentation lives under `extract/`:
 - Install all local quality tooling:
   - `uv sync --group dev --group docs`
 - Run production baseline checks locally:
-  - `uv run pre-commit run ruff-check --all-files`
-  - `uv run pre-commit run ruff-format --all-files`
+  - `uv run pre-commit run ruff-check`
+  - `uv run pre-commit run ruff-format `
   - `uv run mypy`
   - `uv run pytest tests/airbnb tests/include`
   - `uv run mkdocs build`
