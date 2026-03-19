@@ -23,6 +23,8 @@ def load_execute_module() -> ModuleType:
         if MODULE_NAME in sys.modules:
             del sys.modules[MODULE_NAME]
         spec = importlib.util.spec_from_file_location(MODULE_NAME, MODULE_FILE)
+        assert spec is not None
+        assert spec.loader is not None
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module
@@ -33,38 +35,58 @@ def execute_module() -> ModuleType:
     return load_execute_module()
 
 
-def test_selects_latest_snapshot_for_market(execute_module: ModuleType) -> None:
+def test_get_market_urls_returns_latest_for_city(execute_module: ModuleType, tmp_path: Path) -> None:
     html = """https://data.insideairbnb.com/united-kingdom/england/bristol/2025-03-19/data/listings.csv.gz
 https://data.insideairbnb.com/united-kingdom/england/bristol/2025-09-26/data/listings.csv.gz
 https://data.insideairbnb.com/united-kingdom/england/london/2025-09-14/data/listings.csv.gz"""
     response = MagicMock()
     response.text = html
 
-    with patch.object(execute_module.requests, "get", return_value=response) as mock_get:
-        url, snapshot_date = execute_module.resolve_latest_listings_url(
-            page_url="https://insideairbnb.com/bristol/",
-            country_slug="united-kingdom",
-            region_slug="england",
-            market_slug="bristol",
-        )
+    config_path = tmp_path / "airbnb.yml"
+    config_path.write_text(
+        """globals:
+  data_index_url: https://insideairbnb.com/data/
+markets:
+  - city: bristol
+    country_slug: united-kingdom
+    region_slug: england
+    market_slug: bristol
+""",
+        encoding="utf-8",
+    )
 
-    mock_get.assert_called_once_with("https://insideairbnb.com/bristol/", timeout=30)
-    response.raise_for_status.assert_called_once()
-    assert url == "https://data.insideairbnb.com/united-kingdom/england/bristol/2025-09-26/data/listings.csv.gz"
-    assert snapshot_date == "2025-09-26"
+    with patch.object(execute_module, "make_request", return_value=response) as mock_request:
+        results = execute_module.get_market_urls(str(config_path))
+
+    mock_request.assert_called_once_with("GET", "https://insideairbnb.com/data/", timeout=30)
+    assert results == {
+        "bristol_2025-03-19": (
+            "https://data.insideairbnb.com/united-kingdom/england/bristol/2025-03-19/data/listings.csv.gz"
+        ),
+    }
 
 
-def test_raises_when_no_matching_dataset_link_found(execute_module: ModuleType) -> None:
+def test_get_market_urls_returns_empty_when_no_match(
+    execute_module: ModuleType,
+    tmp_path: Path,
+) -> None:
     response = MagicMock()
     response.text = "https://example.com/no-listings-link"
 
-    with (
-        patch.object(execute_module.requests, "get", return_value=response),
-        pytest.raises(ValueError, match="No listings dataset URL found"),
-    ):
-        execute_module.resolve_latest_listings_url(
-            page_url="https://insideairbnb.com/bristol/",
-            country_slug="united-kingdom",
-            region_slug="england",
-            market_slug="bristol",
-        )
+    config_path = tmp_path / "airbnb.yml"
+    config_path.write_text(
+        """globals:
+  data_index_url: https://insideairbnb.com/data/
+markets:
+  - city: bristol
+    country_slug: united-kingdom
+    region_slug: england
+    market_slug: bristol
+""",
+        encoding="utf-8",
+    )
+
+    with patch.object(execute_module, "make_request", return_value=response):
+        results = execute_module.get_market_urls(str(config_path))
+
+    assert results == {}

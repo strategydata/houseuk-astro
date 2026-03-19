@@ -15,6 +15,8 @@ def load_module() -> ModuleType:
     if MODULE_NAME in sys.modules:
         del sys.modules[MODULE_NAME]
     spec = importlib.util.spec_from_file_location(MODULE_NAME, MODULE_FILE)
+    assert spec is not None
+    assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -29,3 +31,12 @@ def test_epc_annual_dag_refreshes_previous_year_with_bulk_command() -> None:
     assert "python extract/epc/src/execute.py bulk" in command
     assert "--start_year {{ data_interval_start.year }}" in command
     assert "--end_year {{ data_interval_start.year }}" in command
+
+
+def test_epc_task_injects_auth_token_secret() -> None:
+    module = load_module()
+    dag = module.epc_annual_extract()
+    task = dag.get_task("epc_annual_extract_task")
+
+    secrets = task.secrets
+    assert any(s.deploy_target == "EPC_AUTH_TOKEN" for s in secrets)

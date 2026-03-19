@@ -1,6 +1,6 @@
 """Airflow DAG for scheduled InsideAirbnb extraction across configured UK markets."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 from airflow.sdk import dag
@@ -52,7 +52,7 @@ INSIDE_AIRBNB_MARKETS = [
 @dag(
     dag_id="insideairbnb_extract",
     schedule="0 5 1 * *",
-    start_date=datetime(2026, 1, 1, tzinfo=datetime.UTC),
+    start_date=datetime(2026, 1, 1, tzinfo=UTC),
     catchup=False,
     default_args=amber_dags_defaults,
 )

@@ -2,7 +2,7 @@
 
 import logging
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Never
 
 from airflow.sdk import dag, task
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @dag(
     dag_id="slack",
-    start_date=datetime(2025, 1, 5, tzinfo=datetime.UTC),
+    start_date=datetime(2025, 1, 5, tzinfo=UTC),
     schedule=None,
     catchup=False,
     default_args=amber_dags_defaults,
