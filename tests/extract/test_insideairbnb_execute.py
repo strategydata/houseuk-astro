@@ -1,3 +1,5 @@
+"""Tests for the Inside Airbnb extraction helpers."""
+
 import importlib.util
 import sys
 import types
@@ -10,9 +12,6 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MODULE_NAME = "insideairbnb_execute_under_test"
 MODULE_FILE = REPO_ROOT / "extract" / "airbnb" / "src" / "execute.py"
-
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 
 def load_execute_module() -> ModuleType:

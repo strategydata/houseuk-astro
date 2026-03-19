@@ -1,1 +1,0 @@
-"""Test extract utility helpers."""

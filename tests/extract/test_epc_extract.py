@@ -1,5 +1,7 @@
 """Test the EPC execution pipeline."""
 
+from __future__ import annotations
+
 import importlib.util
 import sys
 from pathlib import Path
@@ -23,6 +25,31 @@ def load_execute_module() -> ModuleType:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def test_request_headers_include_auth(monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: ARG001
+    """Auth headers include the configured token and user agent."""
+    execute_module = load_execute_module()
+    config = execute_module.EPCConfig(auth_token="token", user_agent="ua")
+    pipeline = execute_module.EPCPipeline(config=config)
+
+    headers = pipeline._request_headers()
+
+    assert headers["Authorization"] == "Basic token"
+    assert headers["User-Agent"] == "ua"
+
+
+def test_stream_target_builds_bucket_key() -> None:
+    """_stream_target should build the URL and S3 key."""
+    execute_module = load_execute_module()
+    config = execute_module.EPCConfig(auth_token="token")
+    pipeline = execute_module.EPCPipeline(config=config)
+
+    file_name, url, s3_key = pipeline._stream_target("2024-02")
+
+    assert file_name == "domestic-2024-02.zip"
+    assert url.endswith("/domestic-2024-02.zip")
+    assert s3_key == "raw/epc/2024/domestic-2024-02.zip"
 
 
 def test_bulk_calls_stream_for_each_year(monkeypatch: pytest.MonkeyPatch) -> None:

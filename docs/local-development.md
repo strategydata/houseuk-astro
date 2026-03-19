@@ -17,14 +17,14 @@ uv run pre-commit install
 Run hooks across the repository:
 
 ```bash
-uv run pre-commit run --all-files
+uv run pre-commit run
 ```
 
 Run only Ruff hooks:
 
 ```bash
-uv run pre-commit run ruff-check --all-files
-uv run pre-commit run ruff-format --all-files
+uv run pre-commit run ruff-check
+uv run pre-commit run ruff-format
 ```
 
 ## Airflow local dev (Astro CLI)
