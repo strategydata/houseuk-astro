@@ -13,10 +13,6 @@ SLACK_WEBHOOK_CONN_ID = os.environ.get("SLACK_WEBHOOK_CONN_ID", "airflow_con_sla
 logger = logging.getLogger(__name__)
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
 @dag(
     dag_id="slack",
     start_date=datetime(2025, 1, 5, tzinfo=UTC),

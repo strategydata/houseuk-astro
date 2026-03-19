@@ -76,15 +76,11 @@ def stream_to_s3(
 
 
 def make_request(
-<<<<<<< HEAD
-    request_type: str, url: str, current_retry_count: int = 0, max_retry_count: int = 3, **kwargs: Any,
-=======
     request_type: str,
     url: str,
     current_retry_count: int = 0,
     max_retry_count: int = 3,
     **kwargs: Any,
->>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
 ) -> requests.Response:
     """Make an HTTP GET or POST request with error handling."""
 
@@ -95,25 +91,15 @@ def make_request(
     kwargs.setdefault("timeout", additional_backoff)
 
     if current_retry_count >= max_retry_count:
-<<<<<<< HEAD
-        msg =f"Manually raising Client Error: Too many retries when calling the {url}."
-=======
         msg = f"Manually raising Client Error: Too many retries when calling the {url}."
->>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
         raise requests.exceptions.HTTPError(
             msg,
         )
     try:
         if request_type == "GET":
-<<<<<<< HEAD
-            response = requests.get(url,**kwargs) # noqa: S113
-        elif request_type == "POST":
-            response = requests.post(url,**kwargs) # noqa: S113
-=======
             response = requests.get(url, **kwargs)  # noqa: S113
         elif request_type == "POST":
             response = requests.post(url, **kwargs)  # noqa: S113
->>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
         else:
             msg = f"Invalid request type: {request_type}. Only 'GET' and 'POST' are supported."
             raise ValueError(msg)

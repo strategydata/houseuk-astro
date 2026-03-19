@@ -1,16 +1,9 @@
 """Extract EPC data and stream archives to S3."""
 
-<<<<<<< HEAD
-import logging
-import os
-from dataclasses import dataclass
-from datetime import datetime
-=======
 import datetime
 import logging
 import os
 from dataclasses import dataclass
->>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
 
 import fire
 import requests
@@ -67,12 +60,7 @@ class EPCPipeline:
             stream_to_s3(
                 url=url,
                 key=s3_key,
-<<<<<<< HEAD
-                args=
-                {
-=======
                 args={
->>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
                     "bucket": self.config.bucket,
                     "headers": self._request_headers(),
                 },
@@ -89,17 +77,9 @@ class EPCPipeline:
                 file_name,
             )
             return False
-<<<<<<< HEAD
-        except Exception as exc: # noqa: BLE001
-            logger.info(
-                "source=%s action=%s file_name=%s error=%s",
-                "epc",
-                "unexpected_error",
-=======
         except Exception:
             logger.exception(
                 "file_name=%s epc unexpected_error unexpected_error",
->>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
                 file_name,
             )
             return False
@@ -121,22 +101,14 @@ class EPCPipeline:
             "bulk_start",
             start_year,
             end_year,
-<<<<<<< HEAD
-            datetime.now(tz=datetime.UTC).date().isoformat(),
-=======
             datetime.datetime.now(tz=datetime.UTC).date().isoformat(),
->>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
         )
         for year in range(start_year, end_year + 1):
             self._stream_to_s3(str(year))
 
     def incremental(self, year: int | None = None, month: int | None = None) -> None:
         """Download monthly files for a year or a specific month."""
-<<<<<<< HEAD
-        now = datetime.now(tz=datetime.UTC)
-=======
         now = datetime.datetime.now(tz=datetime.UTC)
->>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
         target_year = year or now.year
 
         if month:
