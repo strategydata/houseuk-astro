@@ -13,6 +13,4 @@ def get_import_errors() -> list[tuple[str | None, str | None]]:
         return os.path.relpath(path, os.environ.get("AIRFLOW_HOME"))
 
     # Prepend "(None, None)" to ensure a test object is created even if it's a no-op.
-    return [(None, None)] + [
-        (strip_path_prefix(k), v.strip()) for k, v in dag_bag.import_errors.items()
-    ]
+    return [(None, None)] + [(strip_path_prefix(k), v.strip()) for k, v in dag_bag.import_errors.items()]

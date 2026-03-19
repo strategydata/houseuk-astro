@@ -15,6 +15,8 @@ def load_module() -> ModuleType:
     if MODULE_NAME in sys.modules:
         del sys.modules[MODULE_NAME]
     spec = importlib.util.spec_from_file_location(MODULE_NAME, MODULE_FILE)
+    assert spec is not None
+    assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
