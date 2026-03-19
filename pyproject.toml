@@ -8,19 +8,25 @@ dependencies = [
     "apache-airflow-providers-cncf-kubernetes==10.11.1",
     "apache-airflow-providers-slack==9.5.0",
     "aws-lambda-powertools>=3.21.0,<4",
+    "beautifulsoup4>=4.14.3",
     "boto3==1.42.14",
     "fire==0.7.1",
     "kubernetes==34.1.0",
+    "pyyaml>=6.0.3",
     "requests>=2.32.0,<3",
 ]
 
 [dependency-groups]
 dev = [
+    "aws-lambda-typing>=2.20.0",
+    "moto>=5.1.22",
     "mypy==1.18.2",
     "pre-commit==4.3.0",
     "pytest==9.0.0",
     "pytest-cov==7.0.0",
+    "responses>=0.26.0",
     "ruff==0.13.2",
+    "types-pyyaml>=6.0.12.20250915",
     "types-requests==2.32.4.20250913",
 ]
 docs = [
@@ -38,21 +44,25 @@ python_files = ["test_*.py"]
 
 [tool.ruff]
 target-version = "py313"
-line-length = 100
+line-length = 120
 extend-exclude = [".astro", "extract/crime/next/target"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B"]
-extend-select = ["T201"]
-ignore = ["E501"]
+select = ["ALL"]
+ignore=["ANN401","COM812"]
 
-[tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["T201"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"tests/**" = ["T201","S101","S105","D100","D103","S106","S105","INP001","TC002","PLR2004","SLF001","TC003"]
+"notebooks/**"=["ALL"]
 "examples/**/*.py" = ["T201"]
+"__init__.py" =["D104"]
+"lambda/**"=["ARG001","D103","D205","INP001"]
+"dags/kube_secrets.py"=["S106"]
 
 [tool.mypy]
 python_version = "3.13"
 ignore_missing_imports = true
 warn_unused_ignores = true
 explicit_package_bases = true
-files = ["extract", "lambda/stream_unzip_s3.py"]
+files = ["extract"]

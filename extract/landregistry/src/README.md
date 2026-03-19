@@ -11,8 +11,8 @@ Ingests Land Registry Price Paid data for England and Wales into S3.
 
 ## Entrypoint
 
-- Script: `extract/landRegistry/src/execute.py`
-- CLI function: `stream_to_s3(url, bucket, key)`
+- Script: `extract/landregistry/src/execute.py`
+- CLI function: `stream_to_s3(url, bucket, key, headers=None, connect_timeout_seconds=10.0, read_timeout_seconds=300.0)`
 
 ## Required CLI Args
 
@@ -25,7 +25,7 @@ Ingests Land Registry Price Paid data for England and Wales into S3.
 Full history:
 
 ```bash
-python extract/landRegistry/src/execute.py \
+python extract/landregistry/src/execute.py \
   --url="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-complete.csv" \
   --bucket="quibbler-house-data-lake" \
   --key="raw/land_registry/pp-complete.csv"
@@ -34,7 +34,7 @@ python extract/landRegistry/src/execute.py \
 Monthly refresh:
 
 ```bash
-python extract/landRegistry/src/execute.py \
+python extract/landregistry/src/execute.py \
   --url="http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-monthly-update-new-version.csv" \
   --bucket="quibbler-house-data-lake" \
   --key="raw/land_registry/pp-monthly-update-new-version.csv"
@@ -42,6 +42,6 @@ python extract/landRegistry/src/execute.py \
 
 ## Airflow
 
-- DAG: `dags/extract/landRegistry_extract.py`
+- DAG: `dags/extract/landregistry_extract.py`
 - Schedule: `0 6 1 * *` (monthly)
 - Start date: `2026-01-01`

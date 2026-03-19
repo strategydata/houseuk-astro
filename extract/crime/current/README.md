@@ -11,7 +11,7 @@ Downloads a monthly UK Police archive ZIP and stores it in S3.
 ## Entrypoint
 
 - Script: `extract/crime/current/execute.py`
-- CLI function: `stream_to_s3(url, bucket, key)`
+- CLI function: `stream_to_s3(url, bucket, key, headers=None, connect_timeout_seconds=10.0, read_timeout_seconds=300.0)`
 
 ## Required CLI Args
 

@@ -10,6 +10,7 @@
 - Lambda components and routing logic
 - CI/CD quality gates and docs publishing
 - Auto-generated Python API reference from source code
+- Project changelog (tracked in `CHANGELOG.md` at repo root)
 
 ## Quick start
 

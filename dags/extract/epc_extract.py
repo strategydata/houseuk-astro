@@ -1,6 +1,6 @@
 """Airflow DAG that schedules the EPC extractor in a Kubernetes pod."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 from airflow.sdk import dag
@@ -18,11 +18,12 @@ from include.airflow_utils import (
 @dag(
     dag_id="epc_extract",
     schedule="0 8 1 * *",
-    start_date=datetime(2026, 1, 1),
+    start_date=datetime(2026, 1, 1, tzinfo=UTC),
     catchup=False,
     default_args=amber_dags_defaults,
 )
-def epc_extract():
+def epc_extract() -> None:
+    """Build the EPC extract DAG."""
     epc_extract_cmd = f"""
     {clone_and_setup_repo_cmd} &&
     python extract/epc/src/execute.py incremental

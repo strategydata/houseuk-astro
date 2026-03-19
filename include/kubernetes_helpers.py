@@ -1,4 +1,4 @@
-﻿"""Kubernetes scheduling helpers for DAG task pods.
+"""Kubernetes scheduling helpers for DAG task pods.
 
 Provides affinity/toleration selectors for local testing, extraction workloads, dbt workloads, and production defaults.
 """
@@ -6,25 +6,27 @@ Provides affinity/toleration selectors for local testing, extraction workloads, 
 from os import environ as env
 
 
-def get_affinity_with_key_value(key, values):
+def get_affinity_with_key_value(key: str, values: list[str]) -> dict[str, object]:
+    """Build a node affinity selector for a label and allowed values."""
     return {
         "nodeAffinity": {
             "requiredDuringSchedulingIgnoredDuringExecution": {
                 "nodeSelectorTerms": [
                     {
                         "matchExpressions": [
-                            {"key": key, "operator": "In", "values": values}
-                        ]
-                    }
-                ]
-            }
-        }
+                            {"key": key, "operator": "In", "values": values},
+                        ],
+                    },
+                ],
+            },
+        },
     }
 
 
-def get_toleration_with_value(value):
+def get_toleration_with_value(value: str) -> list[dict[str, str]]:
+    """Build a toleration entry for a node label value."""
     return [
-        {"key": value, "operator": "Equal", "value": "true", "effect": "NoSchedule"}
+        {"key": value, "operator": "Equal", "value": "true", "effect": "NoSchedule"},
     ]
 
 
@@ -38,16 +40,17 @@ extraction_affinity = get_affinity_with_key_value("extraction", ["true"])
 extraction_tolerations = get_toleration_with_value("extraction")
 
 
-
 dbt_affinity = get_affinity_with_key_value("dbt", ["true"])
 dbt_tolerations = get_toleration_with_value("dbt")
 
 
-def is_local_test():
+def is_local_test() -> bool:
+    """Return whether the current namespace targets local testing."""
     return "NAMESPACE" in env and env["NAMESPACE"] == "testing"
 
 
-def get_affinity(affinity):
+def get_affinity(affinity: str) -> dict[str, object]:
+    """Select the appropriate affinity configuration for the workload."""
     if is_local_test():
         return test_affinity
     if affinity == "extraction":
@@ -57,7 +60,8 @@ def get_affinity(affinity):
     return production_affinity
 
 
-def get_toleration(tolerations):
+def get_toleration(tolerations: str) -> list[dict[str, str]]:
+    """Select the appropriate tolerations for the workload."""
     if is_local_test():
         return test_tolerations
     if tolerations == "extraction":

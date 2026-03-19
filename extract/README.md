@@ -5,8 +5,9 @@ This folder contains all raw ingestion jobs that pull external datasets into S3.
 ## Shared Utility
 
 - Script: `extract/utils.py`
-- Function: `stream_to_s3(url, bucket, key)`
+- Function: `stream_to_s3(url, bucket, key, headers=None, connect_timeout_seconds=10.0, read_timeout_seconds=300.0)`
 - Behavior: streams a remote file directly to S3 (`upload_fileobj`) to avoid loading full files into memory.
+  Supports optional request headers and timeouts for authenticated sources.
 
 ## Extractors
 
@@ -15,14 +16,16 @@ This folder contains all raw ingestion jobs that pull external datasets into S3.
 | InsideAirbnb | `extract/airbnb` | Python | Active | `raw/airbnb/{city}/...` |
 | UK Crime (current) | `extract/crime/current` | Python | Active | `raw/crime/{YYYY-MM}.zip` |
 | UK Crime (next) | `extract/crime/next` | Rust | Experimental | Planned `raw/crime/...` + processed files |
-| Land Registry | `extract/landRegistry/src` | Python | Active | `raw/land_registry/...` |
-| EPC | `extract/epc` | N/A | Planned | Planned `raw/epc/domestic-YYYY.zip` |
+| Land Registry | `extract/landregistry/src` | Python | Active | `raw/land_registry/...` |
+| EPC | `extract/epc` | Python | Active | `raw/epc/{YYYY}/domestic-{YYYY[-MM]}.zip` |
 
 ## Airflow DAG Mapping
 
 - `dags/extract/insideairbnb_extract.py` -> `extract/airbnb/src/execute.py`
 - `dags/extract/crime_extract.py` -> intended to run `extract/crime/current/execute.py`
-- `dags/extract/landRegistry_extract.py` -> `extract/landRegistry/src/execute.py`
+- `dags/extract/landregistry_extract.py` -> `extract/landregistry/src/execute.py`
+- `dags/extract/epc_extract.py` -> `extract/epc/src/execute.py` (incremental)
+- `dags/extract/epc_annual_extract.py` -> `extract/epc/src/execute.py` (bulk yearly refresh)
 
 ## Local Run Pattern
 

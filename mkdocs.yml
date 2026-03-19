@@ -8,7 +8,7 @@ theme:
 nav:
   - Home: index.md
   - CI/CD: ci-cd.md
-  - Changelog: changelog.md
+  - Changelog: CHANGELOG.md
   - Architecture: architecture.md
   - Script Catalog: scripts.md
   - Extract Layer: extract.md
@@ -20,7 +20,7 @@ nav:
     - extract.utils: api/extract_utils.md
     - extract.airbnb.src.execute: api/airbnb_execute.md
     - extract.crime.current.execute: api/crime_execute.md
-    - extract.landRegistry.src.execute: api/landregistry_execute.md
+    - extract.landregistry.src.execute: api/landregistry_execute.md
 
 plugins:
   - search

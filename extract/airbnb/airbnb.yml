@@ -1,0 +1,21 @@
+globals:
+  bucket: "your-s3-bucket-name"
+  data_index_url: "https://insideairbnb.com/get-the-data/"
+
+markets:
+  - city: london
+    country_slug: united-kingdom
+    region_slug: england
+    market_slug: london
+  - city: bristol
+    country_slug: united-kingdom
+    region_slug: england
+    market_slug: bristol
+  - city: manchester
+    country_slug: united-kingdom
+    region_slug: england
+    market_slug: greater-manchester
+  - city: edinburgh
+    country_slug: united-kingdom
+    region_slug: scotland
+    market_slug: edinburgh

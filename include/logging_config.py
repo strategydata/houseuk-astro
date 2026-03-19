@@ -42,6 +42,7 @@ class JsonFormatter(logging.Formatter):
     """Serialize log records as JSON for machine parsing."""
 
     def format(self, record: logging.LogRecord) -> str:
+        """Format a log record as JSON."""
         payload: dict[str, Any] = {
             "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,
@@ -53,9 +54,13 @@ class JsonFormatter(logging.Formatter):
         if record.stack_info:
             payload["stack"] = self.formatStack(record.stack_info)
 
-        for key, value in record.__dict__.items():
-            if key not in _RESERVED_LOG_RECORD_FIELDS and not key.startswith("_"):
-                payload[key] = value
+        payload.update(
+            {
+                key: value
+                for key, value in record.__dict__.items()
+                if key not in _RESERVED_LOG_RECORD_FIELDS and not key.startswith("_")
+            },
+        )
 
         return json.dumps(payload, default=str)
 
@@ -65,39 +70,26 @@ def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(name)
 
 
-def configure_logging(
+def configure_json_logging(
     level: str | None = None,
-    json_logs: bool | None = None,
-    force: bool = False,
 ) -> None:
     """Configure root logging for non-Airflow scripts.
 
     Environment variables:
     - ``LOG_LEVEL`` (default: ``INFO``)
-    - ``LOG_JSON`` (default: ``false``)
     """
-
     configured_level = level if level is not None else os.getenv("LOG_LEVEL")
     resolved_level = (configured_level or "INFO").upper()
-    use_json = (
-        _parse_bool_env(os.getenv("LOG_JSON", "false")) if json_logs is None else json_logs
-    )
 
     root_logger = logging.getLogger()
-    if root_logger.handlers and not force:
+    if root_logger.handlers:
         root_logger.setLevel(resolved_level)
         for handler in root_logger.handlers:
             handler.setLevel(resolved_level)
         return
 
-    formatter: logging.Formatter
-    if use_json:
-        formatter = JsonFormatter()
-    else:
-        formatter = logging.Formatter(_DEFAULT_LOG_FORMAT)
-
     handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
+    handler.setFormatter(JsonFormatter())
     handler.setLevel(resolved_level)
 
     root_logger.handlers.clear()

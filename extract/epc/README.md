@@ -4,12 +4,14 @@ Documentation and plan for ingesting EPC datasets from Open Data Communities.
 
 ## Source
 
-- Base URL pattern: `https://epc.opendatacommunities.org/files/domestic-YYYY.zip`
-- Example: `https://epc.opendatacommunities.org/files/domestic-2025.zip`
+- Base URL pattern: `https://epc.opendatacommunities.org/api/v1/files/domestic-YYYY.zip`
+- Monthly URL pattern: `https://epc.opendatacommunities.org/api/v1/files/domestic-YYYY-MM.zip`
+- Example: `https://epc.opendatacommunities.org/api/v1/files/domestic-2025.zip`
 
 ## Target S3 Layout
 
-- `raw/epc/domestic-YYYY.zip`
+- `raw/epc/{YYYY}/domestic-YYYY.zip`
+- `raw/epc/{YYYY}/domestic-YYYY-MM.zip`
 
 ## Current Status
 
@@ -19,8 +21,8 @@ Documentation and plan for ingesting EPC datasets from Open Data Communities.
 - The CLI supports:
   - `bulk --start_year=YYYY --end_year=YYYY`
   - `incremental --year=YYYY [--month=MM]`
-- Transfer logic is delegated to `include.airflow_utils.stream_url_to_s3` for
-  consistent timeout handling, status codes, and S3 error handling.
+- Transfer logic uses `extract.utils.stream_to_s3` with request headers so the
+  extractor stays simple and CLI-friendly.
 
 ## Example Invocation
 
@@ -35,8 +37,8 @@ uv run python extract/epc/src/execute.py incremental --year=2026 --month=1
 - Uses shared `include/logging_config.py` bootstrap for non-Airflow logging.
 - Default level is `INFO` (`LOG_LEVEL` override supported).
 - Set `LOG_JSON=true` for JSON structured output.
-- Transport-layer errors are logged centrally by `stream_url_to_s3`; the EPC
-  extractor only emits concise workflow logs to avoid duplicate noisy errors.
+- Transport-layer errors are caught and logged in the EPC extractor; the helper
+  raises on request or S3 failures.
 
 ## Runtime Configuration
 

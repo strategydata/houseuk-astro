@@ -1,17 +1,18 @@
-﻿"""Airflow DAG for scheduled InsideAirbnb extraction across configured UK markets."""
+"""Airflow DAG for scheduled InsideAirbnb extraction across configured UK markets."""
 
-from airflow.sdk import dag
+from datetime import UTC, datetime
+
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+from airflow.sdk import dag
 from kubernetes.client import models as k8s
-from datetime import datetime
 
+from dags.kube_secrets import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from include.airflow_utils import (
     DATA_IMAGE,
     amber_dags_defaults,
     amber_kube_defaults,
     clone_and_setup_repo_cmd,
 )
-from dags.kube_secrets import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 
 BUCKET = "quibbler-house-data-lake"
 
@@ -51,11 +52,12 @@ INSIDE_AIRBNB_MARKETS = [
 @dag(
     dag_id="insideairbnb_extract",
     schedule="0 5 1 * *",
-    start_date=datetime(2026, 1, 1),
+    start_date=datetime(2026, 1, 1, tzinfo=UTC),
     catchup=False,
     default_args=amber_dags_defaults,
 )
-def insideairbnb_extract():
+def insideairbnb_extract() -> None:
+    """Build the InsideAirbnb extract DAG."""
     previous_task = None
 
     for market in INSIDE_AIRBNB_MARKETS:

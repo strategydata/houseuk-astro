@@ -5,166 +5,77 @@ uploads the dated snapshot to S3, and refreshes a stable `latest` object key.
 """
 
 import logging
-import os
 import re
+from pathlib import Path
 
-import boto3
-import requests
+import yaml
 from fire import Fire
 
-from extract.utils import stream_to_s3
-from include.logging_config import configure_logging
+from extract.utils import make_request, stream_to_s3
 
-LISTINGS_URL_PATTERN = re.compile(
-    r"https://data\.insideairbnb\.com/(?P<country>[^/]+)/(?P<region>[^/]+)/(?P<market>[^/]+)/(?P<snapshot_date>\d{4}-\d{2}-\d{2})/data/listings\.csv\.gz"
-)
 logger = logging.getLogger(__name__)
 
 
-def _s3_client():
-    """Create an S3 client using environment-based AWS credentials.
-
-    Returns
-    -------
-    botocore.client.S3
-        Configured S3 client.
-    """
-    return boto3.client(
-        "s3",
-        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        aws_account_id=os.getenv("AWS_ACCOUNT_ID"),
-    )
-
-
-def resolve_latest_listings_url(
-    page_url: str,
-    country_slug: str,
-    region_slug: str,
-    market_slug: str,
-) -> tuple[str, str]:
-    """Resolve the newest listings dataset URL for a target market page.
+def get_market_urls(
+    config_path: str,
+) -> dict[str, str]:
+    """Fetch listing dataset URLs from the InsideAirbnb index page.
 
     Parameters
     ----------
-    page_url : str
-        InsideAirbnb market page URL (e.g. ``https://insideairbnb.com/london/``).
-    country_slug : str
-        Country path segment expected in the dataset URL.
-    region_slug : str
-        Region path segment expected in the dataset URL.
-    market_slug : str
-        Market path segment expected in the dataset URL.
+    config_path : str
+        Path to the YAML config containing the index URL and market slugs.
 
     Returns
     -------
-    tuple[str, str]
-        A tuple ``(dataset_url, snapshot_date)`` where ``snapshot_date``
-        is in ``YYYY-MM-DD`` format.
+    dict[str, str]
+        Mapping of "{city}_{date}" keys to listings CSV URLs.
 
-    Raises
-    ------
-    requests.HTTPError
-        If the page request fails.
-    ValueError
-        If no matching listings URL is found.
     """
-    response = requests.get(page_url, timeout=30)
-    response.raise_for_status()
+    with Path(config_path).open() as f:
+        config = yaml.safe_load(f)
+    global__conf = config.get("globals", {})
+    index_url = global__conf.get("data_index_url")
+    logger.info("Fetching market URLs from index page: %s", index_url)
+    response = make_request("GET", index_url, timeout=30)
+    logger.info("Successfully fetched index page. Parsing HTML content.")
+    html_content = response.text
+    results = {}
+    for m in config.get("markets", []):
+        logger.info("Processing market: %s", m)
+        city = m["city"]
 
-    matches = []
-    for match in LISTINGS_URL_PATTERN.finditer(response.text):
-        if (
-            match.group("country") == country_slug
-            and match.group("region") == region_slug
-            and match.group("market") == market_slug
-        ):
-            matches.append(
-                {
-                    "url": match.group(0),
-                    "snapshot_date": match.group("snapshot_date"),
-                }
-            )
-
-    if not matches:
-        raise ValueError(
-            f"No listings dataset URL found for {country_slug}/{region_slug}/{market_slug} at {page_url}"
+        # Building the regex pattern for this specific city
+        # Note the double {{ }} to escape the f-string for the regex counts
+        pattern = (
+            rf"https://data\.insideairbnb\.com/"
+            rf"{m['country_slug']}/{m['region_slug']}/{m['market_slug']}/"
+            r"(?P<date>\d{4}-\d{2}-\d{2})/data/listings\.csv\.gz"
         )
+        match = re.search(pattern, html_content)
+        if match:
+            url = match.group(0)
+            date = match.group("date")
 
-    latest = max(matches, key=lambda item: item["snapshot_date"])
-    return latest["url"], latest["snapshot_date"]
+            # Key format: city_date
+            results[f"{city}_{date}"] = url
+            logger.info("Found: %s -> %s", city, date)
+        else:
+            logger.warning("No match found for city: %s", city)
+
+    return results
 
 
-def extract_latest_market_snapshot(
-    city: str,
-    country_slug: str,
-    region_slug: str,
-    market_slug: str,
-    page_url: str,
-    bucket: str,
-) -> None:
-    """Download and publish the newest InsideAirbnb market snapshot.
-
-    This function uploads a dated object and then copies it to a stable
-    ``latest`` key with metadata for lineage.
-
-    Parameters
-    ----------
-    city : str
-        City identifier used in S3 object keys.
-    country_slug : str
-        Country segment used to match InsideAirbnb dataset URLs.
-    region_slug : str
-        Region segment used to match InsideAirbnb dataset URLs.
-    market_slug : str
-        Market segment used to match InsideAirbnb dataset URLs.
-    page_url : str
-        InsideAirbnb page URL for the market.
-    bucket : str
-        Target S3 bucket.
-
-    Returns
-    -------
-    None
-        Uploads objects to S3 as side effects.
-    """
-    url, snapshot_date = resolve_latest_listings_url(
-        page_url=page_url,
-        country_slug=country_slug,
-        region_slug=region_slug,
-        market_slug=market_slug,
-    )
-
-    dated_key = f"raw/airbnb/{city}/listings_{snapshot_date}.csv.gz"
-    latest_key = f"raw/airbnb/{city}/latest/listings.csv.gz"
-
-    stream_to_s3(url=url, bucket=bucket, key=dated_key)
-
-    s3 = _s3_client()
-    s3.copy_object(
-        Bucket=bucket,
-        CopySource={"Bucket": bucket, "Key": dated_key},
-        Key=latest_key,
-        MetadataDirective="REPLACE",
-        Metadata={
-            "source_url": url,
-            "snapshot_date": snapshot_date,
-            "city": city,
-        },
-    )
-
-    logger.info(
-        "source=%s action=%s city=%s snapshot_date=%s bucket=%s dated_key=%s latest_key=%s",
-        "airbnb",
-        "upload_success",
-        city,
-        snapshot_date,
-        bucket,
-        dated_key,
-        latest_key,
-    )
+def main() -> None:
+    """Run the extraction pipeline."""
+    market_urls = get_market_urls("extract/airbnb/airbnb.yml")
+    logger.info("Market URLs: %s", market_urls)
+    for file_name, url in market_urls.items():
+        logger.info("Processing market snapshot: %s", file_name)
+        key = f"raw/airbnb/{file_name}.csv.gz"
+        stream_to_s3(url=url, key=key)
+        logger.info("Successfully uploaded %s to   %s", file_name, key)
 
 
 if __name__ == "__main__":
-    configure_logging()
-    Fire(extract_latest_market_snapshot)
+    Fire(main)

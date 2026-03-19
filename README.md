@@ -35,6 +35,43 @@ kubectl create secret generic airflow-credentials --from-env-file=.env/dev.env
 
 ```
 
+## Local Python tooling (uv + Ruff + pre-commit)
+
+Install local tooling and dependencies:
+
+```bash
+uv sync --group dev --group docs
+```
+
+If you change dependencies, keep `requirements.txt` in sync for Astro builds:
+
+```bash
+uv lock
+uv export --format requirements-txt --no-hashes --no-dev --no-group docs --output-file requirements.txt
+```
+
+Run checks:
+
+```bash
+uv run pre-commit run
+uv run pytest tests/airbnb tests/include
+```
+
+## Airflow local dev (Astro CLI)
+
+Ensure Docker Desktop is running, then validate and start Airflow:
+
+```bash
+astro dev parse
+astro dev start
+```
+
+Run tests inside the Airflow image:
+
+```bash
+astro dev pytest tests/include
+```
+
 
 Start Airflow on your local machine by running 'astro dev start'.
 
@@ -71,7 +108,7 @@ Extractor documentation lives under `extract/`:
 - [InsideAirbnb Extract](extract/airbnb/README.md)
 - [UK Crime Extract (Current Python)](extract/crime/current/README.md)
 - [UK Crime Extract (Next Rust Prototype)](extract/crime/next/src/README)
-- [Land Registry Extract](extract/landRegistry/src/README.md)
+- [Land Registry Extract](extract/landregistry/src/README.md)
 - [EPC Extract](extract/epc/README.md)
 
 # Resources
@@ -87,8 +124,8 @@ Extractor documentation lives under `extract/`:
 - Install all local quality tooling:
   - `uv sync --group dev --group docs`
 - Run production baseline checks locally:
-  - `uv run pre-commit run ruff-check --all-files`
-  - `uv run pre-commit run ruff-format --all-files`
+  - `uv run pre-commit run ruff-check`
+  - `uv run pre-commit run ruff-format `
   - `uv run mypy`
   - `uv run pytest tests/airbnb tests/include`
   - `uv run mkdocs build`
