@@ -11,9 +11,6 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 MODULE_NAME = "epc_execute_under_test"
 MODULE_FILE = REPO_ROOT / "extract" / "epc" / "src" / "execute.py"
 
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
 
 def load_execute_module() -> ModuleType:
     """Load the EPC execute module from its file path."""
@@ -21,9 +18,10 @@ def load_execute_module() -> ModuleType:
         del sys.modules[MODULE_NAME]
 
     spec = importlib.util.spec_from_file_location(MODULE_NAME, MODULE_FILE)
+    assert spec is not None
+    assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
-    if spec and spec.loader:
-        spec.loader.exec_module(module)
+    spec.loader.exec_module(module)
     return module
 
 def test_bulk_calls_stream_for_each_year(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -32,7 +30,10 @@ def test_bulk_calls_stream_for_each_year(monkeypatch: pytest.MonkeyPatch) -> Non
     pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))
     called: list[str] = []
 
-    monkeypatch.setattr(pipeline, "_stream_to_s3", lambda identifier: called.append(identifier))
+    def fake_stream(identifier: str) -> None:
+        called.append(identifier)
+
+    monkeypatch.setattr(pipeline, "_stream_to_s3", fake_stream)
     pipeline.bulk(start_year=2024, end_year=2025)
 
     assert called == ["2024", "2025"]
@@ -44,7 +45,10 @@ def test_incremental_specific_month_calls_single_identifier(monkeypatch: pytest.
     pipeline = execute_module.EPCPipeline(execute_module.EPCConfig(auth_token="token-value"))
     called: list[str] = []
 
-    monkeypatch.setattr(pipeline, "_stream_to_s3", lambda identifier: called.append(identifier))
+    def fake_stream(identifier: str) -> None:
+        called.append(identifier)
+
+    monkeypatch.setattr(pipeline, "_stream_to_s3", fake_stream)
     pipeline.incremental(year=2026, month=2)
 
     assert called == ["2026-02"]
@@ -53,7 +57,7 @@ def test_pipeline_requires_auth_token() -> None:
     """Test that the pipeline enforces a non-empty auth token."""
     execute_module = load_execute_module()
     config = execute_module.EPCConfig(auth_token="")
-    with pytest.raises(AssertionError) as exc:
+    with pytest.raises(ValueError, match="EPC auth token is required") as exc:
         execute_module.EPCPipeline(config=config)
     assert "EPC auth token is required" in str(exc.value)
 
