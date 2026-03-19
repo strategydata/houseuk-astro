@@ -19,7 +19,6 @@ HTTP_REPO = "https://github.com/strategydata/houseuk-astro.git"
 GIT_BRANCH = "main"
 
 
-
 def slack_failed_task(context: dict[str, object]) -> None:
     """Handle Slack failure notifications for DAG callbacks.
 
