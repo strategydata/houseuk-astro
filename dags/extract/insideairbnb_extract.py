@@ -1,4 +1,4 @@
-﻿"""Airflow DAG for scheduled InsideAirbnb extraction across configured UK markets."""
+"""Airflow DAG for scheduled InsideAirbnb extraction across configured UK markets."""
 
 from datetime import UTC, datetime
 

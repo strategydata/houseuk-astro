@@ -1,16 +1,23 @@
 """Extract EPC data and stream archives to S3."""
 
+<<<<<<< HEAD
 import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime
+=======
+import datetime
+import logging
+import os
+from dataclasses import dataclass
+>>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
 
 import fire
 import requests
 from botocore.exceptions import BotoCoreError, ClientError
 
 from extract.utils import stream_to_s3
-from include.logging_config import configure_logging
+from include.logging_config import configure_json_logging
 
 DEFAULT_S3_BUCKET = "quibbler-house-data-lake"
 DEFAULT_BASE_URL = "https://epc.opendatacommunities.org/api/v1/files"
@@ -60,37 +67,40 @@ class EPCPipeline:
             stream_to_s3(
                 url=url,
                 key=s3_key,
+<<<<<<< HEAD
                 args=
                 {
+=======
+                args={
+>>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
                     "bucket": self.config.bucket,
                     "headers": self._request_headers(),
                 },
             )
-        except requests.HTTPError as exc:
-            logger.info(
-                "source=%s action=%s file_name=%s error=%s",
-                "epc",
-                "source_request_failed",
+        except requests.HTTPError:
+            logger.exception(
+                "file_name=%s epc source_request_failed",
                 file_name,
-                str(exc),
             )
             return False
-        except (BotoCoreError, ClientError) as exc:
-            logger.info(
-                "source=%s action=%s file_name=%s error=%s",
-                "epc",
-                "s3_upload_failed",
+        except (BotoCoreError, ClientError):
+            logger.exception(
+                "file_name=%s,epc s3_upload_failed",
                 file_name,
-                str(exc),
             )
             return False
+<<<<<<< HEAD
         except Exception as exc: # noqa: BLE001
             logger.info(
                 "source=%s action=%s file_name=%s error=%s",
                 "epc",
                 "unexpected_error",
+=======
+        except Exception:
+            logger.exception(
+                "file_name=%s epc unexpected_error unexpected_error",
+>>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
                 file_name,
-                str(exc),
             )
             return False
 
@@ -111,14 +121,22 @@ class EPCPipeline:
             "bulk_start",
             start_year,
             end_year,
+<<<<<<< HEAD
             datetime.now(tz=datetime.UTC).date().isoformat(),
+=======
+            datetime.datetime.now(tz=datetime.UTC).date().isoformat(),
+>>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
         )
         for year in range(start_year, end_year + 1):
             self._stream_to_s3(str(year))
 
     def incremental(self, year: int | None = None, month: int | None = None) -> None:
         """Download monthly files for a year or a specific month."""
+<<<<<<< HEAD
         now = datetime.now(tz=datetime.UTC)
+=======
+        now = datetime.datetime.now(tz=datetime.UTC)
+>>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
         target_year = year or now.year
 
         if month:
@@ -141,5 +159,5 @@ class EPCPipeline:
 
 
 if __name__ == "__main__":
-    configure_logging()
+    configure_json_logging()
     fire.Fire(EPCPipeline())

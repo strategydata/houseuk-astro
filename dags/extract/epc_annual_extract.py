@@ -1,6 +1,10 @@
 """Airflow DAG that schedules annual EPC backfill refresh for the previous year."""
 
+<<<<<<< HEAD
 from datetime import UTC, datetime
+=======
+import datetime
+>>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
 
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 from airflow.sdk import dag
@@ -21,7 +25,11 @@ ANNUAL_TARGET_YEAR_TEMPLATE = "{{ data_interval_start.year }}"
 @dag(
     dag_id="epc_annual_extract",
     schedule="0 9 1 1 *",
+<<<<<<< HEAD
     start_date=datetime(2026, 1, 1, tzinfo=UTC),
+=======
+    start_date=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
+>>>>>>> c349a767111b9aa1414ec28efd96804cdd7ccf74
     catchup=False,
     default_args=amber_dags_defaults,
 )

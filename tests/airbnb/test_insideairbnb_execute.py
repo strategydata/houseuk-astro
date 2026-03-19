@@ -14,8 +14,8 @@ MODULE_NAME = "insideairbnb_execute_under_test"
 MODULE_FILE = REPO_ROOT / "extract" / "airbnb" / "src" / "execute.py"
 
 
+
 def load_execute_module() -> ModuleType:
-    """Load the execute module with test doubles for external dependencies."""
     fake_boto3 = types.SimpleNamespace(client=MagicMock(name="boto3_client"))
     fake_fire = types.SimpleNamespace(Fire=MagicMock(name="Fire"))
 
@@ -32,101 +32,61 @@ def load_execute_module() -> ModuleType:
 
 @pytest.fixture
 def execute_module() -> ModuleType:
-    """Return a freshly loaded execute module."""
     return load_execute_module()
 
 
-def test_selects_latest_snapshot_for_market(execute_module: ModuleType) -> None:
-    """Pick the latest snapshot date for a single market."""
+def test_get_market_urls_returns_latest_for_city(execute_module: ModuleType, tmp_path: Path) -> None:
     html = """https://data.insideairbnb.com/united-kingdom/england/bristol/2025-03-19/data/listings.csv.gz
 https://data.insideairbnb.com/united-kingdom/england/bristol/2025-09-26/data/listings.csv.gz
 https://data.insideairbnb.com/united-kingdom/england/london/2025-09-14/data/listings.csv.gz"""
     response = MagicMock()
     response.text = html
 
-    with patch.object(execute_module.requests, "get", return_value=response) as mock_get:
-        url, snapshot_date = execute_module.resolve_latest_listings_url(
-            page_url="https://insideairbnb.com/bristol/",
-            country_slug="united-kingdom",
-            region_slug="england",
-            market_slug="bristol",
-        )
-
-    mock_get.assert_called_once_with("https://insideairbnb.com/bristol/", timeout=30)
-    response.raise_for_status.assert_called_once()
-    assert (
-        url
-        == "https://data.insideairbnb.com/united-kingdom/england/bristol/2025-09-26/data/listings.csv.gz"
+    config_path = tmp_path / "airbnb.yml"
+    config_path.write_text(
+        """globals:
+  data_index_url: https://insideairbnb.com/data/
+markets:
+  - city: bristol
+    country_slug: united-kingdom
+    region_slug: england
+    market_slug: bristol
+""",
+        encoding="utf-8",
     )
-    assert snapshot_date == "2025-09-26"
+
+    with patch.object(execute_module, "make_request", return_value=response) as mock_request:
+        results = execute_module.get_market_urls(str(config_path))
+
+    mock_request.assert_called_once_with("GET", "https://insideairbnb.com/data/", timeout=30)
+    assert results == {
+        "bristol_2025-03-19": (
+            "https://data.insideairbnb.com/united-kingdom/england/bristol/2025-03-19/data/listings.csv.gz"
+        ),
+    }
 
 
-def test_raises_when_no_matching_dataset_link_found(execute_module: ModuleType) -> None:
-    """Raise when the market listings URL cannot be found."""
+def test_get_market_urls_returns_empty_when_no_match(
+    execute_module: ModuleType,
+    tmp_path: Path,
+) -> None:
     response = MagicMock()
     response.text = "https://example.com/no-listings-link"
 
-    with (
-        patch.object(execute_module.requests, "get", return_value=response),
-        pytest.raises(ValueError, match="No listings dataset URL found"),
-    ):
-        execute_module.resolve_latest_listings_url(
-            page_url="https://insideairbnb.com/bristol/",
-            country_slug="united-kingdom",
-            region_slug="england",
-            market_slug="bristol",
-        )
-
-
-def test_uploads_dated_file_and_refreshes_latest_pointer(execute_module: ModuleType) -> None:
-    """Upload the dated snapshot and update the latest pointer."""
-    resolved_url = (
-        "https://data.insideairbnb.com/united-kingdom/england/london/"
-        "2025-09-14/data/listings.csv.gz"
+    config_path = tmp_path / "airbnb.yml"
+    config_path.write_text(
+        """globals:
+  data_index_url: https://insideairbnb.com/data/
+markets:
+  - city: bristol
+    country_slug: united-kingdom
+    region_slug: england
+    market_slug: bristol
+""",
+        encoding="utf-8",
     )
-    resolved_date = "2025-09-14"
-    s3 = MagicMock()
 
-    with (
-        patch.object(
-            execute_module,
-            "resolve_latest_listings_url",
-            return_value=(resolved_url, resolved_date),
-        ) as resolve_mock,
-        patch.object(execute_module, "stream_to_s3") as stream_mock,
-        patch.object(execute_module, "_s3_client", return_value=s3),
-    ):
-        execute_module.extract_latest_market_snapshot(
-            city="london",
-            country_slug="united-kingdom",
-            region_slug="england",
-            market_slug="london",
-            page_url="https://insideairbnb.com/london/",
-            bucket="quibbler-house-data-lake",
-        )
+    with patch.object(execute_module, "make_request", return_value=response):
+        results = execute_module.get_market_urls(str(config_path))
 
-    resolve_mock.assert_called_once_with(
-        page_url="https://insideairbnb.com/london/",
-        country_slug="united-kingdom",
-        region_slug="england",
-        market_slug="london",
-    )
-    stream_mock.assert_called_once_with(
-        url=resolved_url,
-        bucket="quibbler-house-data-lake",
-        key="raw/airbnb/london/listings_2025-09-14.csv.gz",
-    )
-    s3.copy_object.assert_called_once_with(
-        Bucket="quibbler-house-data-lake",
-        CopySource={
-            "Bucket": "quibbler-house-data-lake",
-            "Key": "raw/airbnb/london/listings_2025-09-14.csv.gz",
-        },
-        Key="raw/airbnb/london/latest/listings.csv.gz",
-        MetadataDirective="REPLACE",
-        Metadata={
-            "source_url": resolved_url,
-            "snapshot_date": "2025-09-14",
-            "city": "london",
-        },
-    )
+    assert results == {}

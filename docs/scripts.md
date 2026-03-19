@@ -5,7 +5,7 @@ This catalog summarizes operational scripts and what each one is responsible for
 | Path | Type | Responsibility |
 | --- | --- | --- |
 | `extract/utils.py` | Python module | Shared `stream_to_s3` helper for streaming HTTP downloads to S3 (supports headers/timeouts). |
-| `extract/airbnb/src/execute.py` | Python script | Resolves latest InsideAirbnb snapshot and writes dated + latest objects to S3. |
+| `extract/airbnb/src/execute.py` | Python script | Reads InsideAirbnb markets from `extract/airbnb/airbnb.yml` and streams latest listings to S3. |
 | `extract/epc/src/execute.py` | Python script | EPC extractor CLI; builds year/month identifiers and streams to S3 via `extract.utils.stream_to_s3`. |
 | `extract/crime/current/execute.py` | Python script | UK Crime extractor CLI wrapper around shared streaming utility. |
 | `extract/landregistry/src/execute.py` | Python script | Land Registry extractor CLI wrapper around shared streaming utility. |
