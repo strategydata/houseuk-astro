@@ -1,0 +1,11 @@
+houseuk:
+  target: prod
+  outputs:
+    prod:
+      type: duckdb
+      path: transform/target/houseuk.duckdb
+      extensions:
+        - httpfs
+        - parquet
+      settings:
+        s3_region: "eu-west-1"

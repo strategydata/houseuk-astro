@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: stg_airbnb_listings
+    description: "InsideAirbnb listings across configured UK cities."
+  - name: stg_land_registry
+    description: "Land Registry Price Paid monthly dataset."
+  - name: stg_rightmove_rent
+    description: "Rightmove rental listings (raw JSON)."
+  - name: stg_rightmove_sale
+    description: "Rightmove sale listings (raw JSON)."
+  - name: stg_geo_areas
+    description: "GeoJSON area boundaries (raw)."
+  - name: mart_area_sales_stats
+    description: "Monthly sales price distribution by area and property type."
+  - name: mart_area_rent_stats
+    description: "Monthly rent distribution by area and bedrooms."
+  - name: mart_rightmove_normalized
+    description: "Rightmove listings with normalized price/rent vs area history."
